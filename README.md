@@ -27,6 +27,6 @@ We will implement a CNN architecture, utilizing either a custom-designed model o
 | **Hydra** | **Configuration Management:** We will use Hydra to manage hyperparameters (learning rate, batch size, etc.) and model architectures via YAML files. This allows us to run different experiments from the command line without modifying the core source code. |
 | **GitHub** | **Collaboration & CI/CD:** Beyond hosting our code, we will use GitHub Actions to automate code quality checks (linting) and unit tests every time a new feature is pushed to the repository. |
 | **Weights & Biases (WandB)** | **Experiment Tracking:** Every training run will be logged to WandB. This provides our group with a centralized dashboard to visualize training curves, compare different model versions, and store the resulting model artifacts. |
-|**DVC**| **Data Versioning:** (Added for MLOps best practice) Since we have 75k images, DVC will track our data versions and store the actual files in a remote cloud/local cache while keeping our GitHub repo light. |
+|**DVC**| **Data Versioning:** Since we have 75k images, DVC will track our data versions and store the actual files in a remote cloud/local cache while keeping our GitHub repo light. |
 
 
