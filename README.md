@@ -18,6 +18,8 @@ We will be utilizing the [Rice Image Dataset](https://www.kaggle.com/datasets/mu
 # Model:
 We will implement a CNN architecture, utilizing either a custom-designed model or a pre-trained model. To ensure reproducibility and scalability, the experimentation pipeline will be managed using Hydra for configuration and orchestrated through bash scripts. All experimental results, including hyperparameters and performance metrics, will be logged to wandB.
 
+# Tools:
+
 | Tool | Purpose in this Project |
 | :--- | :--- |
 | **PyTorch** | **Deep Learning Framework:** We will use PyTorch as our core engine for building and training the CNN. Its dynamic computation graph makes it ideal for iterative experimentation and debugging. We will specifically leverage `torchvision` for pre-trained ResNet models and efficient image transformations. |
