@@ -26,7 +26,7 @@ The directory structure of the project looks like this:
 ├── reports/                  # Reports
 │   └── figures/
 ├── src/                      # Source code
-│   ├── project_name/
+│   ├── rice_cnn_classifier/
 │   │   ├── __init__.py
 │   │   ├── api.py
 │   │   ├── data.py
