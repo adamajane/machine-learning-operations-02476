@@ -4,7 +4,7 @@ import typer
 from torch.utils.data import Dataset
 
 
-class MyDataset(Dataset):
+class RiceDataset(Dataset):
     """My custom dataset."""
 
     def __init__(self, data_path: Path) -> None:
@@ -21,7 +21,7 @@ class MyDataset(Dataset):
 
 def preprocess(data_path: Path, output_folder: Path) -> None:
     print("Preprocessing data...")
-    dataset = MyDataset(data_path)
+    dataset = RiceDataset(data_path)
     dataset.preprocess(output_folder)
 
 
