@@ -47,3 +47,23 @@ def build_docs(ctx: Context) -> None:
 def serve_docs(ctx: Context) -> None:
     """Serve documentation."""
     ctx.run("uv run mkdocs serve --config-file docs/mkdocs.yaml", echo=True, pty=not WINDOWS)
+
+
+#  dvc commands
+
+@task
+def pull_data(ctx: Context) -> None:
+    """Pull data from DVC remote storage."""
+    ctx.run("dvc pull", echo=True, pty=not WINDOWS)
+
+
+@task
+def run_pipeline(ctx: Context) -> None:
+    """Run the DVC data preprocessing pipeline."""
+    ctx.run("dvc repro", echo=True, pty=not WINDOWS)
+
+
+@task
+def preprocess_data(ctx: Context) -> None:
+    """Preprocess the raw data."""
+    ctx.run("uv run python src/rice_cnn_classifier/data.py data/raw data/processed", echo=True, pty=not WINDOWS)

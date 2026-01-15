@@ -1,0 +1,8 @@
+stages:
+  preprocess:
+    cmd: uv run python src/rice_cnn_classifier/data.py data/raw data/processed
+    deps:
+      - data/raw
+      - src/rice_cnn_classifier/data.py
+    outs:
+      - data/processed
