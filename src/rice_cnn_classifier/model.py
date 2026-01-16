@@ -15,7 +15,7 @@ class RiceCNN(nn.Module):
         )
         self.fc_layers = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(32 * 16 * 16, 128),
+            nn.Linear(32 * 56 * 56, 128),
             nn.ReLU(),
             nn.Linear(128, num_classes)
         )

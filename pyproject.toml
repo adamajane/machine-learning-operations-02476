@@ -19,10 +19,16 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "dvc-gs>=3.0.2",
+    "dvc[gs]>=3.0.0",
     "fastapi==0.115.6",
+    "invoke>=2.2.0",
+    "pathspec>=0.11.0,<0.12.0",
     "torch==2.6.0",
     "typer==0.15.1",
     "uvicorn==0.34.0",
+    "pillow>=10.0.0",
+    "torchvision>=0.17.0",
+    "numpy>=1.26.0",
 ]
 
 [dependency-groups]
