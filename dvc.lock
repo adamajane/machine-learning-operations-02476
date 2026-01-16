@@ -1,0 +1,20 @@
+schema: '2.0'
+stages:
+  preprocess:
+    cmd: uv run python src/rice_cnn_classifier/data.py data/raw data/processed
+    deps:
+    - path: data/raw
+      hash: md5
+      md5: 13ce3ec26d5e618cd3adb7c40bc17e14.dir
+      size: 267352426
+      nfiles: 75001
+    - path: src/rice_cnn_classifier/data.py
+      hash: md5
+      md5: d5cb6ac563ed55440e735eb913f4fdc5
+      size: 5202
+    outs:
+    - path: data/processed
+      hash: md5
+      md5: f4925eee7bf81936962340f6959848e5.dir
+      size: 392942567
+      nfiles: 75000
