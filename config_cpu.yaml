@@ -1,0 +1,11 @@
+workerPoolSpecs:
+  - machineSpec:
+      machineType: n1-highmem-2
+    replicaCount: 1
+    containerSpec:
+      imageUri: europe-west1-docker.pkg.dev/river-portfolio-484113-c9/rice-repo/rice-model:v1
+      env:
+        - name: WANDB_API_KEY
+          value: <INSERT_YOUR_WANDB_KEY_HERE>
+      command: ["python", "src/rice_cnn_classifier/train.py"]
+      args: ["--epochs=10", "--batch-size=32", "--data-path=/gcs/rice-project-data-karen/data/processed", "--model-dir=/gcs/rice-project-data-karen/models"]

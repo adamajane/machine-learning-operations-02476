@@ -6,19 +6,31 @@ from torch.utils.data import DataLoader
 from rice_cnn_classifier.model import RiceCNN
 from rice_cnn_classifier.data import RiceDataset, get_transforms
 
-def train():
+import typer
+
+def train(
+    epochs: int = 10,
+    batch_size: int = 32,
+    learning_rate: float = 0.001,
+    data_path: str = "data/processed",
+    model_dir: str = "models",
+):
     # Hyperparameters
-    epochs = 10
-    batch_size = 32
-    learning_rate = 0.001
     device = torch.device("mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
-
-    # Paths
-    data_path = Path("data/processed")
-    models_dir = Path("models")
-    models_dir.mkdir(exist_ok=True)
     
+    # Paths
+    print(f"Received data_path: {data_path}")
+    print(f"Received model_dir: {model_dir}")
+    
+    data_path = Path(data_path)
+    # Handle GCS path specifically if it comes as a string
+    if str(data_path).startswith("/gcs"):
+         print("Detected GCS path!")
+
+    models_dir = Path(model_dir)
+    models_dir.mkdir(parents=True, exist_ok=True)
+
     # Datasets
     try:
         train_dataset = RiceDataset(data_path=data_path, split="train", transform=get_transforms("train"))
@@ -87,4 +99,4 @@ def train():
     print("Training complete.")
 
 if __name__ == "__main__":
-    train()
+    typer.run(train)

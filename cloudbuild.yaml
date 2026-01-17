@@ -1,0 +1,17 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: [
+    'build',
+    '.',
+    '-t',
+    'europe-west1-docker.pkg.dev/river-portfolio-484113-c9/rice-repo/rice-model:v1',
+    '-f',
+    'dockerfiles/train.dockerfile'
+  ]
+- name: 'gcr.io/cloud-builders/docker'
+  args: [
+    'push',
+    'europe-west1-docker.pkg.dev/river-portfolio-484113-c9/rice-repo/rice-model:v1'
+  ]
+options:
+  logging: CLOUD_LOGGING_ONLY
