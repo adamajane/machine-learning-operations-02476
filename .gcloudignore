@@ -1,0 +1,10 @@
+.git
+.gitignore
+.venv/
+data/
+models/
+.dvc/
+__pycache__/
+*.pyc
+.ipynb_checkpoints
+.DS_Store

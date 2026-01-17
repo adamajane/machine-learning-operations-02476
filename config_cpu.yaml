@@ -5,7 +5,9 @@ workerPoolSpecs:
     containerSpec:
       imageUri: europe-west1-docker.pkg.dev/river-portfolio-484113-c9/rice-repo/rice-model:v1
       env:
+        - name: PYTHONUNBUFFERED
+          value: "1"
         - name: WANDB_API_KEY
           value: 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
-      command: ["python", "src/rice_cnn_classifier/train.py"]
-      args: ["--epochs=10", "--batch-size=32", "--data-path=/gcs/rice-project-data-karen/data/processed", "--model-dir=/gcs/rice-project-data-karen/models"]
+      command: ["uv", "run", "src/rice_cnn_classifier/train.py"]
+      args: ["--epochs=10", "--batch-size=32", "--data-path=/gcs/helsoe_mlops_data_bucket/data/processed", "--model-dir=/gcs/helsoe_mlops_data_bucket/models"]

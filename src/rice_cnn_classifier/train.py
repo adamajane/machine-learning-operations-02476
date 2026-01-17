@@ -16,6 +16,7 @@ def train(
     model_dir: str = "models",
 ):
     # Hyperparameters
+    print("SCRIPT STARTED: Rice Classifier Training")
     device = torch.device("mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
     
@@ -33,6 +34,7 @@ def train(
 
     # Datasets
     try:
+        print("Analyzing dataset files... (This may take a few minutes on GCS)")
         train_dataset = RiceDataset(data_path=data_path, split="train", transform=get_transforms("train"))
         val_dataset = RiceDataset(data_path=data_path, split="val", transform=get_transforms("val"))
     except FileNotFoundError:
