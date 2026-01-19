@@ -66,5 +66,4 @@ jobs:
             --args="-lc" \
             --args="${TRAIN_CMD}"
 
-                  --args="${TRAIN_CMD}"
 
