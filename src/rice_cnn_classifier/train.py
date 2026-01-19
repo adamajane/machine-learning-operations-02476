@@ -3,10 +3,11 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
+import typer
+import wandb
 from rice_cnn_classifier.model import RiceCNN
 from rice_cnn_classifier.data import RiceDataset, get_transforms
 
-import typer
 
 def train(
     epochs: int = 10,
@@ -17,17 +18,21 @@ def train(
 ):
     # Hyperparameters
     print("SCRIPT STARTED: Rice Classifier Training")
-    device = torch.device("mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device(
+        "mps"
+        if torch.backends.mps.is_available()
+        else "cuda" if torch.cuda.is_available() else "cpu"
+    )
     print(f"Using device: {device}")
-    
+
     # Paths
     print(f"Received data_path: {data_path}")
     print(f"Received model_dir: {model_dir}")
-    
+
     data_path = Path(data_path)
     # Handle GCS path specifically if it comes as a string
     if str(data_path).startswith("/gcs"):
-         print("Detected GCS path!")
+        print("Detected GCS path!")
 
     models_dir = Path(model_dir)
     models_dir.mkdir(parents=True, exist_ok=True)
@@ -35,10 +40,16 @@ def train(
     # Datasets
     try:
         print("Analyzing dataset files... (This may take a few minutes on GCS)")
-        train_dataset = RiceDataset(data_path=data_path, split="train", transform=get_transforms("train"))
-        val_dataset = RiceDataset(data_path=data_path, split="val", transform=get_transforms("val"))
+        train_dataset = RiceDataset(
+            data_path=data_path, split="train", transform=get_transforms("train")
+        )
+        val_dataset = RiceDataset(
+            data_path=data_path, split="val", transform=get_transforms("val")
+        )
     except FileNotFoundError:
-        print(f"Error: Data directory '{data_path}' not found. Please run 'dvc repro' first.")
+        print(
+            f"Error: Data directory '{data_path}' not found. Please run 'dvc repro' first."
+        )
         return
 
     # DataLoaders
@@ -87,10 +98,12 @@ def train(
                 _, predicted = torch.max(outputs.data, 1)
                 val_total += labels.size(0)
                 val_correct += (predicted == labels).sum().item()
-        
+
         val_acc = 100 * val_correct / val_total
-        
-        print(f"Epoch [{epoch+1}/{epochs}], Loss: {avg_loss:.4f}, Train Acc: {train_acc:.2f}%, Val Acc: {val_acc:.2f}%")
+
+        print(
+            f"Epoch [{epoch+1}/{epochs}], Loss: {avg_loss:.4f}, Train Acc: {train_acc:.2f}%, Val Acc: {val_acc:.2f}%"
+        )
 
         # Save Best Model
         if val_acc > best_val_acc:
@@ -99,6 +112,7 @@ def train(
             print(f"Saved best model with Val Acc: {val_acc:.2f}%")
 
     print("Training complete.")
+
 
 if __name__ == "__main__":
     typer.run(train)
