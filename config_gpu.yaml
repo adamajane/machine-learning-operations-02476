@@ -1,0 +1,15 @@
+workerPoolSpecs:
+  - machineSpec:
+      machineType: n1-standard-8
+      acceleratorType: NVIDIA_TESLA_T4
+      acceleratorCount: 1
+    replicaCount: 1
+    containerSpec:
+      imageUri: europe-west1-docker.pkg.dev/river-portfolio-484113-c9/rice-repo/rice-model:v1-gpu
+      env:
+        - name: PYTHONUNBUFFERED
+          value: "1"
+        - name: WANDB_API_KEY
+          value: ${WANDB_API_KEY}
+      command: ["uv", "run", "src/rice_cnn_classifier/train.py"]
+      args: ["--epochs=10", "--batch-size=32", "--data-path=/gcs/helsoe_mlops_data_bucket/data/processed", "--model-dir=/gcs/helsoe_mlops_data_bucket/models"]
