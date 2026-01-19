@@ -56,7 +56,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          TRAIN_CMD="gsutil -m rsync -r gs://YOUR_BUCKET/data/processed ./data/processed && uv run python src/rice_cnn_classifier/train.py --data_path=./data/processed --model_dir=${MODEL_DIR}"
+          TRAIN_CMD="uv run src/rice_cnn_classifier/train.py --data-path=gs://helsoe_mlops_data_bucket/data/processed --model-dir=gs://helsoe_mlops_data_bucket/models"
 
           gcloud ai custom-jobs create \
             --region="${REGION}" \
