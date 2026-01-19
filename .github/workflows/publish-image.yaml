@@ -57,4 +57,4 @@ jobs:
           gcloud ai custom-jobs create \
             --region=${{ env.REGION }} \
             --display-name=${JOB_NAME} \
-            --worker-pool-spec=replica-count=1,machine-type=n1-standard-8,accelerator-type=nvidia-tesla-t4,accelerator-count=1,container-image-uri=${IMAGE_URI}:${{ github.sha }},container-command=bash,container-args=-lc,container-args="${TRAIN_CMD}"
+            --worker-pool-spec=replica-count=1,machine-type=n1-standard-8,accelerator-type=nvidia-tesla-t4,accelerator-count=1,container-image-uri=${IMAGE_URI}:${{ github.sha }},command=bash,args=-lc,args="${TRAIN_CMD}"
