@@ -45,3 +45,16 @@ jobs:
           docker build -f "${{ env.DOCKERFILE_PATH }}" -t "${IMAGE_URI}:${IMAGE_TAG}" -t "${IMAGE_URI}:latest" "${{ env.BUILD_CONTEXT }}"
           docker push "${IMAGE_URI}:${IMAGE_TAG}"
           docker push "${IMAGE_URI}:latest"
+
+      - name: Submit Vertex AI training job
+        env:
+          IMAGE_URI: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.IMAGE_NAME }}
+          JOB_NAME: rice-train-${{ github.run_id }}
+          DATA_PATH: data/processed
+          MODEL_DIR: models
+        run: |
+          TRAIN_CMD="dvc pull -r remote_storage ${DATA_PATH} && uv run src/rice_cnn_classifier/train.py --data_path=${DATA_PATH} --model_dir=${MODEL_DIR}"
+          gcloud ai custom-jobs create \
+            --region=${{ env.REGION }} \
+            --display-name=${JOB_NAME} \
+            --worker-pool-spec=replica-count=1,machine-type=n1-standard-8,accelerator-type=nvidia-tesla-t4,accelerator-count=1,container-image-uri=${IMAGE_URI}:${{ github.sha }},container-command=bash,container-args=-lc,container-args="${TRAIN_CMD}"
