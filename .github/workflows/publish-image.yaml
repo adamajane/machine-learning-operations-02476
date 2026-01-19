@@ -56,7 +56,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          TRAIN_CMD="uv run dvc pull -r remote_storage ${DATA_PATH} && uv run src/rice_cnn_classifier/train.py --data_path=${DATA_PATH} --model_dir=${MODEL_DIR}"
+          TRAIN_CMD="/.venv/bin/dvc pull -r remote_storage ${DATA_PATH} && uv run src/rice_cnn_classifier/train.py --data_path=${DATA_PATH} --model_dir=${MODEL_DIR}"
 
           gcloud ai custom-jobs create \
             --region="${REGION}" \
