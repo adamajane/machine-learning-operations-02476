@@ -56,13 +56,13 @@ jobs:
         run: |
           set -euo pipefail
 
-          TRAIN_CMD="dvc pull -r remote_storage ${DATA_PATH} && uv run src/rice_cnn_classifier/train.py --data_path=${DATA_PATH} --model_dir=${MODEL_DIR}"
+          TRAIN_CMD="uv run dvc pull -r remote_storage ${DATA_PATH} && uv run src/rice_cnn_classifier/train.py --data_path=${DATA_PATH} --model_dir=${MODEL_DIR}"
 
           gcloud ai custom-jobs create \
             --region="${REGION}" \
             --display-name="${JOB_NAME}" \
             --worker-pool-spec="replica-count=1,machine-type=n1-standard-8,accelerator-type=NVIDIA_TESLA_T4,accelerator-count=1,container-image-uri=${IMAGE_URI}:${GITHUB_SHA}" \
-            --command="bash" \
-            --args="-lc" \
+            --command="sh" \
+            --args="-c" \
             --args="${TRAIN_CMD}"
 
