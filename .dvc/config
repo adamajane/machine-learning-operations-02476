@@ -1,6 +1,4 @@
 [core]
-    remote = remote_storage
-    autostage = true
-['remote "remote_storage"']
-    url = gs://helsoe_mlops_data_bucket/Images
-    version_aware = true
+    remote = remote_data_storage
+['remote "remote_data_storage"']
+    url = gs://rice_image_dataset/
