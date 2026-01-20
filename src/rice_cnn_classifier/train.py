@@ -15,6 +15,9 @@ def train(
     learning_rate: float = 0.001,
     data_path: str = "data/processed",
     model_dir: str = "models",
+    wandb_project: str = "rice_cnn_classifier",
+    wandb_run_name: str | None = None,
+    disable_wandb: bool = False,
 ):
     # Hyperparameters
     print("SCRIPT STARTED: Rice Classifier Training")
@@ -24,6 +27,22 @@ def train(
         else "cuda" if torch.cuda.is_available() else "cpu"
     )
     print(f"Using device: {device}")
+
+    # Initialize WandB
+    if not disable_wandb:
+        wandb.init(
+            project=wandb_project,
+            name=wandb_run_name,
+            config={
+                "epochs": epochs,
+                "batch_size": batch_size,
+                "learning_rate": learning_rate,
+                "architecture": "RiceCNN",
+                "num_classes": len(RiceDataset.CLASSES),
+                "classes": list(RiceDataset.CLASSES),
+                "device": str(device),
+            },
+        )
 
     # Paths
     print(f"Received data_path: {data_path}")
@@ -105,12 +124,38 @@ def train(
             f"Epoch [{epoch+1}/{epochs}], Loss: {avg_loss:.4f}, Train Acc: {train_acc:.2f}%, Val Acc: {val_acc:.2f}%"
         )
 
+        # Log metrics to WandB
+        if not disable_wandb:
+            wandb.log(
+                {
+                    "epoch": epoch + 1,
+                    "train/loss": avg_loss,
+                    "train/accuracy": train_acc,
+                    "val/accuracy": val_acc,
+                }
+            )
+
         # Save Best Model
         if val_acc > best_val_acc:
             best_val_acc = val_acc
-            torch.save(model.state_dict(), models_dir / "model.pth")
+            model_path = models_dir / "model.pth"
+            torch.save(model.state_dict(), model_path)
             print(f"Saved best model with Val Acc: {val_acc:.2f}%")
 
+            # Log model as WandB artifact
+            if not disable_wandb:
+                artifact = wandb.Artifact(
+                    name="rice_cnn_model",
+                    type="model",
+                    description=f"Best model with val_acc={val_acc:.2f}%",
+                    metadata={"val_accuracy": val_acc, "epoch": epoch + 1},
+                )
+                artifact.add_file(str(model_path))
+                wandb.log_artifact(artifact)
+
+    # Finish WandB run
+    if not disable_wandb:
+        wandb.finish()
     print("Training complete.")
 
 
