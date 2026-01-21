@@ -28,6 +28,6 @@ The API submits Vertex AI custom jobs. Configure these environment variables for
 
 - `VERTEX_PROJECT_ID`
 - `VERTEX_REGION`
-- `TRAIN_IMAGE_URI`
+- `WANDB_SECRET_NAME` (optional, defaults to `WANDB_API_KEY` in Secret Manager)
 
 You can also pass `project_id`, `region`, and `image_uri` in the request body.
