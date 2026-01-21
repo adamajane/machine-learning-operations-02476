@@ -1,7 +1,7 @@
 name: Deploy API to Cloud Run
 on:
   push:
-    branches: [main]
+    branches: [main, feature-api-request]
   workflow_dispatch:
 
 env:
