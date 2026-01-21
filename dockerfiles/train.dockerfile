@@ -21,6 +21,7 @@ RUN uv pip uninstall torch torchvision && \
     torch==2.6.0 torchvision==0.21.0
 
 # Verify CUDA is available (will print during build)
-RUN uv run python -c "import torch; print(f'PyTorch version: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}'); print(f'CUDA version: {torch.version.cuda if torch.cuda.is_available() else \"N/A\"}')"
+# Use .venv/bin/python directly to avoid uv sync overwriting CUDA PyTorch with CPU version
+RUN .venv/bin/python -c "import torch; print(f'PyTorch version: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}'); print(f'CUDA version: {torch.version.cuda if torch.cuda.is_available() else \"N/A\"}')"
 
-ENTRYPOINT ["uv", "run", "src/rice_cnn_classifier/train.py"]
+ENTRYPOINT [".venv/bin/python", "src/rice_cnn_classifier/train.py"]
