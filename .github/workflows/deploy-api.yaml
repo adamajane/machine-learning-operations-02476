@@ -1,0 +1,58 @@
+name: Deploy API to Cloud Run
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: river-portfolio-484113-c9
+  REGION: europe-west1
+  ARTIFACT_REPO: rice-repo
+  IMAGE_NAME: rice-api
+  SERVICE_NAME: rice-api
+  DOCKERFILE_PATH: dockerfiles/api.dockerfile
+  BUILD_CONTEXT: .
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Set up gcloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Configure Docker authentication
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      - name: Build and push image
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          IMAGE_URI="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.IMAGE_NAME }}"
+          docker build -f "${{ env.DOCKERFILE_PATH }}" -t "${IMAGE_URI}:${IMAGE_TAG}" -t "${IMAGE_URI}:latest" "${{ env.BUILD_CONTEXT }}"
+          docker push "${IMAGE_URI}:${IMAGE_TAG}"
+          docker push "${IMAGE_URI}:latest"
+
+      - name: Deploy to Cloud Run
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          IMAGE_URI="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.IMAGE_NAME }}"
+          gcloud run deploy "${{ env.SERVICE_NAME }}" \
+            --region "${{ env.REGION }}" \
+            --image "${IMAGE_URI}:${IMAGE_TAG}" \
+            --platform managed \
+            --allow-unauthenticated \
+            --port 8000
