@@ -2,7 +2,7 @@ name: Build and Push Docker Image
 # pølse
 on:
   push:
-    branches: [main, feature-api-request]
+    branches: [main]
   workflow_dispatch:
 
 env:
