@@ -2,13 +2,16 @@ FROM ghcr.io/astral-sh/uv:python3.12-bookworm AS base
 
 WORKDIR /app
 
-RUN uv pip install \
+RUN uv pip install --system \
     fastapi==0.115.6 \
-    uvicorn==0.34.0 \
-    google-cloud-aiplatform>=1.73.0 \
-    pydantic>=2.0.0
+    google-auth>=2.36.0 \
+    pydantic>=2.0.0 \
+    pyyaml>=6.0.0 \
+    requests>=2.32.0 \
+    uvicorn==0.34.0
 
 COPY src src/
+COPY config_gpu.yaml config_gpu.yaml
 
 ENV PYTHONPATH=/app/src
 

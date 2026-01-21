@@ -1,61 +1,32 @@
-"""API endpoints for triggering and monitoring training runs."""
+"""API endpoints for triggering training runs."""
 
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from enum import Enum
 import os
-from typing import Optional
+import re
+from typing import Any, Dict, Optional
 
 from fastapi import FastAPI, HTTPException
-from google.cloud import aiplatform_v1
-from pydantic import BaseModel, Field
-
-
-class TrainStatus(str, Enum):
-    """Status values for training jobs."""
-
-    queued = "queued"
-    running = "running"
-    succeeded = "succeeded"
-    failed = "failed"
+from google.auth import default as google_auth_default
+from google.auth.transport.requests import Request as GoogleAuthRequest
+from pydantic import BaseModel
+import requests
+import yaml
 
 
 class TrainRequest(BaseModel):
-    """Training parameters supplied by the API client."""
+    """Training request to launch a Vertex AI job."""
 
-    epochs: int = Field(default=10, ge=1)
-    batch_size: int = Field(default=32, ge=1)
-    learning_rate: float = Field(default=0.001, gt=0)
-    data_path: str = Field(default="data/processed")
-    model_dir: str = Field(default="models")
-    wandb_project: str = Field(default="rice_cnn_classifier")
-    wandb_run_name: Optional[str] = Field(default=None)
-    disable_wandb: bool = Field(default=False)
-    project_id: Optional[str] = Field(default=None)
-    region: Optional[str] = Field(default=None)
-    image_uri: Optional[str] = Field(default=None)
-    machine_type: str = Field(default="n1-standard-8")
-    accelerator_type: Optional[str] = Field(default=None)
-    accelerator_count: int = Field(default=0, ge=0)
+    display_name: Optional[str] = None
+    project_id: Optional[str] = None
+    region: Optional[str] = None
 
 
 class TrainResponse(BaseModel):
     """Response returned when a training job is started."""
 
-    job_id: str
     job_name: str
-    status_url: str
-
-
-class TrainStatusResponse(BaseModel):
-    """Response describing the current state of a training job."""
-
-    job_id: str
-    job_name: str
-    status: TrainStatus
-    state: str
-    created_at: Optional[datetime]
 
 
 app = FastAPI(title="Rice CNN Classifier API")
@@ -81,54 +52,68 @@ def _resolve_setting(value: Optional[str], env_name: str) -> str:
     return resolved
 
 
-def _build_train_args(request: TrainRequest) -> list[str]:
-    """Build the training arguments passed to the container.
+def _replace_env_vars(raw_text: str) -> str:
+    """Replace ${VAR} placeholders with environment values.
 
     Args:
-        request: Training configuration supplied by the client.
+        raw_text: Raw config text.
 
     Returns:
-        List of CLI arguments for the training container.
+        Config text with placeholders substituted.
     """
 
-    args = [
-        f"--epochs={request.epochs}",
-        f"--batch-size={request.batch_size}",
-        f"--learning-rate={request.learning_rate}",
-        f"--data-path={request.data_path}",
-        f"--model-dir={request.model_dir}",
-        f"--wandb-project={request.wandb_project}",
-    ]
+    pattern = re.compile(r"\$\{([A-Z0-9_]+)\}")
 
-    if request.wandb_run_name:
-        args.append(f"--wandb-run-name={request.wandb_run_name}")
+    def repl(match: re.Match[str]) -> str:
+        return os.getenv(match.group(1), "")
 
-    if request.disable_wandb:
-        args.append("--disable-wandb")
-
-    return args
+    return pattern.sub(repl, raw_text)
 
 
-def _map_job_state(state: aiplatform_v1.JobState) -> TrainStatus:
-    """Map a Vertex AI job state to the API status.
+def _load_config(config_path: str) -> Dict[str, Any]:
+    """Load the Vertex AI config file.
 
     Args:
-        state: Vertex AI job state value.
+        config_path: Path to the YAML config file.
 
     Returns:
-        Simplified training status.
+        Parsed config data.
     """
 
-    if state in {
-        aiplatform_v1.JobState.JOB_STATE_QUEUED,
-        aiplatform_v1.JobState.JOB_STATE_PENDING,
-    }:
-        return TrainStatus.queued
-    if state == aiplatform_v1.JobState.JOB_STATE_RUNNING:
-        return TrainStatus.running
-    if state == aiplatform_v1.JobState.JOB_STATE_SUCCEEDED:
-        return TrainStatus.succeeded
-    return TrainStatus.failed
+    with open(config_path, "r", encoding="utf-8") as handle:
+        raw_text = handle.read()
+    rendered = _replace_env_vars(raw_text)
+    return yaml.safe_load(rendered)
+
+
+def _build_custom_job(config: Dict[str, Any], display_name: str) -> Dict[str, Any]:
+    """Build a Vertex AI custom job payload.
+
+    Args:
+        config: Parsed config data.
+        display_name: Job display name.
+
+    Returns:
+        Custom job payload.
+    """
+
+    if "jobSpec" in config:
+        job_spec = config["jobSpec"]
+    else:
+        job_spec = config
+    return {"displayName": display_name, "jobSpec": job_spec}
+
+
+def _get_access_token() -> str:
+    """Get a Google Cloud access token for the service account.
+
+    Returns:
+        Access token string.
+    """
+
+    credentials, _ = google_auth_default(scopes=["https://www.googleapis.com/auth/cloud-platform"])
+    credentials.refresh(GoogleAuthRequest())
+    return credentials.token
 
 
 @app.get("/health")
@@ -140,7 +125,7 @@ def health() -> dict[str, str]:
 
 @app.post("/train", response_model=TrainResponse)
 def start_training(request: TrainRequest) -> TrainResponse:
-    """Start a new training job on Vertex AI.
+    """Start a new training job on Vertex AI using config_gpu.yaml.
 
     Args:
         request: Training configuration supplied by the client.
@@ -151,82 +136,18 @@ def start_training(request: TrainRequest) -> TrainResponse:
 
     project_id = _resolve_setting(request.project_id, "VERTEX_PROJECT_ID")
     region = _resolve_setting(request.region, "VERTEX_REGION")
-    image_uri = _resolve_setting(request.image_uri, "TRAIN_IMAGE_URI")
-    parent = f"projects/{project_id}/locations/{region}"
-    job_client = aiplatform_v1.JobServiceClient(
-        client_options={"api_endpoint": f"{region}-aiplatform.googleapis.com"}
-    )
+    config_path = os.getenv("VERTEX_JOB_CONFIG_PATH", "config_gpu.yaml")
+    config = _load_config(config_path)
+    display_name = request.display_name or f"rice-train-{datetime.now(tz=UTC).strftime('%Y%m%d-%H%M%S')}"
+    payload = _build_custom_job(config, display_name)
 
-    env_vars = [{"name": "PYTHONUNBUFFERED", "value": "1"}]
-    wandb_api_key = os.getenv("WANDB_API_KEY")
-    if wandb_api_key and not request.disable_wandb:
-        env_vars.append({"name": "WANDB_API_KEY", "value": wandb_api_key})
+    url = f"https://{region}-aiplatform.googleapis.com/v1/projects/{project_id}/locations/{region}/customJobs"
+    headers = {"Authorization": f"Bearer {_get_access_token()}", "Content-Type": "application/json"}
+    response = requests.post(url, json=payload, headers=headers, timeout=30)
+    if not response.ok:
+        raise HTTPException(status_code=response.status_code, detail=response.text)
 
-    machine_spec = {"machine_type": request.machine_type}
-    if request.accelerator_type and request.accelerator_count > 0:
-        machine_spec["accelerator_type"] = request.accelerator_type
-        machine_spec["accelerator_count"] = request.accelerator_count
-
-    training_job = {
-        "display_name": f"rice-train-{datetime.now(tz=UTC).strftime('%Y%m%d-%H%M%S')}",
-        "job_spec": {
-            "worker_pool_specs": [
-                {
-                    "machine_spec": machine_spec,
-                    "replica_count": 1,
-                    "container_spec": {
-                        "image_uri": image_uri,
-                        "args": _build_train_args(request),
-                        "env": env_vars,
-                    },
-                }
-            ]
-        },
-    }
-
-    response = job_client.create_custom_job(parent=parent, custom_job=training_job)
-    job_id = response.name.split("/")[-1]
-    return TrainResponse(job_id=job_id, job_name=response.name, status_url=f"/train/{job_id}")
-
-
-@app.get("/train/{job_id}", response_model=TrainStatusResponse)
-def get_training_status(
-    job_id: str, project_id: Optional[str] = None, region: Optional[str] = None
-) -> TrainStatusResponse:
-    """Get the status of a training job.
-
-    Args:
-        job_id: Vertex AI custom job resource name or job ID.
-        project_id: GCP project ID override.
-        region: Vertex AI region override.
-
-    Returns:
-        Status information for the requested job.
-    """
-
-    if "/" in job_id:
-        parts = job_id.split("/")
-        if len(parts) < 6:
-            raise HTTPException(status_code=400, detail="Job name must be a full Vertex AI resource name.")
-        resolved_region = parts[3]
-        resolved_project = parts[1]
-        resolved_name = job_id
-        resolved_job_id = parts[-1]
-    else:
-        resolved_project = _resolve_setting(project_id, "VERTEX_PROJECT_ID")
-        resolved_region = _resolve_setting(region, "VERTEX_REGION")
-        resolved_name = f"projects/{resolved_project}/locations/{resolved_region}/customJobs/{job_id}"
-        resolved_job_id = job_id
-
-    job_client = aiplatform_v1.JobServiceClient(
-        client_options={"api_endpoint": f"{resolved_region}-aiplatform.googleapis.com"}
-    )
-    job = job_client.get_custom_job(name=resolved_name)
-    created_at = job.create_time.ToDatetime(tzinfo=UTC) if job.create_time else None
-    return TrainStatusResponse(
-        job_id=resolved_job_id,
-        job_name=job.name,
-        status=_map_job_state(job.state),
-        state=job.state.name,
-        created_at=created_at,
-    )
+    job_name = response.json().get("name")
+    if not job_name:
+        raise HTTPException(status_code=500, detail="Vertex AI did not return a job name.")
+    return TrainResponse(job_name=job_name)
