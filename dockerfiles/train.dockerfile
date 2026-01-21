@@ -6,17 +6,17 @@ COPY uv.lock uv.lock
 COPY pyproject.toml pyproject.toml
 COPY README.md README.md
 
-# Install CUDA PyTorch FIRST, before uv sync pulls in CPU version
-RUN uv pip install --index-url ${TORCH_CUDA_INDEX} \
-    --extra-index-url https://pypi.org/simple \
-    --index-strategy unsafe-best-match \
-    torch==2.6.0 torchvision==0.21.0
-
-# Now sync remaining dependencies (torch/torchvision already satisfied)
+# First sync to create venv and install dependencies (including CPU PyTorch)
 RUN uv sync --frozen --no-install-project
 
 COPY src src/
 
 RUN uv sync --frozen
+
+# Now REPLACE CPU PyTorch with CUDA version (--reinstall forces replacement)
+RUN uv pip install --reinstall --index-url ${TORCH_CUDA_INDEX} \
+    --extra-index-url https://pypi.org/simple \
+    --index-strategy unsafe-best-match \
+    torch==2.6.0 torchvision==0.21.0
 
 ENTRYPOINT ["uv", "run", "src/rice_cnn_classifier/train.py"]
