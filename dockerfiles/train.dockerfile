@@ -13,8 +13,10 @@ COPY src src/
 
 RUN uv sync --frozen
 
-# Replace CPU PyTorch with CUDA version (--reinstall forces replacement)
-RUN .venv/bin/pip install --index-url ${TORCH_CUDA_INDEX} \
+# Replace CPU PyTorch with CUDA version using uv pip
+# --reinstall forces replacement of existing CPU version
+RUN uv pip install --reinstall \
+    --index-url ${TORCH_CUDA_INDEX} \
     --extra-index-url https://pypi.org/simple \
     torch==2.6.0 torchvision==0.21.0
 
