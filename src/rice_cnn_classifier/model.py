@@ -1,8 +1,10 @@
 from torch import nn
 import torch
 
+
 class RiceCNN(nn.Module):
     """Simple CNN for rice classification."""
+
     def __init__(self, num_classes: int = 5) -> None:
         super().__init__()
         self.conv_layers = nn.Sequential(
@@ -17,13 +19,14 @@ class RiceCNN(nn.Module):
             nn.Flatten(),
             nn.Linear(32 * 56 * 56, 128),
             nn.ReLU(),
-            nn.Linear(128, num_classes)
+            nn.Linear(128, num_classes),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.conv_layers(x)
         x = self.fc_layers(x)
         return x
+
 
 if __name__ == "__main__":
     model = RiceCNN(num_classes=5)

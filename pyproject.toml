@@ -29,6 +29,10 @@ dependencies = [
     "pillow>=10.0.0",
     "torchvision>=0.17.0",
     "numpy>=1.26.0",
+    "wandb>=0.24.0",
+    "scikit-learn>=1.4.0",
+    "matplotlib>=3.8.0",
+    "seaborn>=0.13.0",
 ]
 
 [dependency-groups]

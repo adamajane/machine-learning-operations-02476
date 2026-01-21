@@ -10,4 +10,4 @@ workerPoolSpecs:
         - name: WANDB_API_KEY
           value: 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
       command: ["uv", "run", "src/rice_cnn_classifier/train.py"]
-      args: ["--epochs=10", "--batch-size=32", "--data-path=/gcs/helsoe_mlops_data_bucket/data/processed", "--model-dir=/gcs/helsoe_mlops_data_bucket/models"]
+      args: ["--epochs=10", "--batch-size=32", "--data-path=/gcs/rice_image_dataset/data/processed", "--model-dir=/gcs/rice_image_dataset/models"]
