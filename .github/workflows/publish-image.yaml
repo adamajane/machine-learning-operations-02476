@@ -2,7 +2,7 @@ name: Build and Push Docker Image
 # pølse
 on:
   push:
-    branches: [main, logging-feature]
+    branches: [main]
   workflow_dispatch:
 
 env:
@@ -46,24 +46,24 @@ jobs:
           docker push "${IMAGE_URI}:${IMAGE_TAG}"
           docker push "${IMAGE_URI}:latest"
 
-      - name: Submit Vertex AI training job
-        shell: bash
-        env:
-          IMAGE_URI: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.IMAGE_NAME }}
-          JOB_NAME: rice-train-${{ github.run_id }}
-          WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
-        run: |
-          set -euo pipefail
+      # - name: Submit Vertex AI training job
+      #   shell: bash
+      #   env:
+      #     IMAGE_URI: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.IMAGE_NAME }}
+      #     JOB_NAME: rice-train-${{ github.run_id }}
+      #     WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
+      #   run: |
+      #     set -euo pipefail
 
-          TRAIN_CMD="uv run python -m rice_cnn_classifier.train --data-path=/gcs/rice_image_dataset/data/processed --model-dir=/gcs/rice_image_dataset/models"
-          EVAL_CMD="uv run python -m rice_cnn_classifier.evaluate --model-path=/gcs/rice_image_dataset/models/model.pth --data-path=/gcs/rice_image_dataset/data/processed"
+      #     TRAIN_CMD="uv run python -m rice_cnn_classifier.train --data-path=/gcs/rice_image_dataset/data/processed --model-dir=/gcs/rice_image_dataset/models"
+      #     EVAL_CMD="uv run python -m rice_cnn_classifier.evaluate --model-path=/gcs/rice_image_dataset/models/model.pth --data-path=/gcs/rice_image_dataset/data/processed"
 
-          gcloud ai custom-jobs create \
-            --region="${REGION}" \
-            --display-name="${JOB_NAME}" \
-            --worker-pool-spec="replica-count=1,machine-type=n1-standard-8,accelerator-type=NVIDIA_TESLA_T4,accelerator-count=1,container-image-uri=${IMAGE_URI}:${GITHUB_SHA}" \
-            --command="sh" \
-            --args="-lc" \
-            --args="export WANDB_API_KEY=${WANDB_API_KEY} && ${TRAIN_CMD} && ${EVAL_CMD}"
+      #     gcloud ai custom-jobs create \
+      #       --region="${REGION}" \
+      #       --display-name="${JOB_NAME}" \
+      #       --worker-pool-spec="replica-count=1,machine-type=n1-standard-8,accelerator-type=NVIDIA_TESLA_T4,accelerator-count=1,container-image-uri=${IMAGE_URI}:${GITHUB_SHA}" \
+      #       --command="sh" \
+      #       --args="-lc" \
+      #       --args="export WANDB_API_KEY=${WANDB_API_KEY} && ${TRAIN_CMD} && ${EVAL_CMD}"
 
 

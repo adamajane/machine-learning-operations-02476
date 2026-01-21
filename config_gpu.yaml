@@ -5,7 +5,7 @@ workerPoolSpecs:
       acceleratorCount: 1
     replicaCount: 1
     containerSpec:
-      imageUri: europe-west1-docker.pkg.dev/river-portfolio-484113-c9/rice-repo/rice-model:v1-gpu
+      imageUri: europe-west1-docker.pkg.dev/river-portfolio-484113-c9/rice-repo/rice-model:latest
       env:
         - name: PYTHONUNBUFFERED
           value: "1"

@@ -1,12 +1,18 @@
-FROM ghcr.io/astral-sh/uv:python3.12-alpine AS base
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm AS base
 
-COPY uv.lock uv.lock
-COPY pyproject.toml pyproject.toml
+WORKDIR /app
 
-RUN uv sync --frozen --no-install-project
+RUN uv pip install --system \
+    fastapi==0.115.6 \
+    google-auth>=2.36.0 \
+    pydantic>=2.0.0 \
+    pyyaml>=6.0.0 \
+    requests>=2.32.0 \
+    uvicorn==0.34.0
 
 COPY src src/
+COPY config_gpu.yaml config_gpu.yaml
 
-RUN uv sync --frozen
+ENV PYTHONPATH=/app/src
 
-ENTRYPOINT ["uv", "run", "uvicorn", "src.project_name.api:app", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["sh", "-c", "python -m uvicorn rice_cnn_classifier.api:app --host 0.0.0.0 --port ${PORT:-8000}"]

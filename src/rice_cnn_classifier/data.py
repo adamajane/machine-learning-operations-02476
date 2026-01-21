@@ -22,6 +22,13 @@ class RiceDataset(Dataset):
         data_path: Path to the dataset directory containing class folders
         transform: Optional transform to apply to images
         split: Which split to load ('train', 'val', 'test')
+        train_ratio: Proportion of data for training (default 0.8)
+        val_ratio: Proportion of data for validation (default 0.1)
+        seed: Random seed for reproducible splits (default 42)
+
+    Note:
+        Data is split 80% train, 10% val, 10% test by default.
+        The split is deterministic based on the seed and filename sorting.
     """
 
     CLASSES = ["Arborio", "Basmati", "Ipsala", "Jasmine", "Karacadag"]
@@ -31,10 +38,16 @@ class RiceDataset(Dataset):
         data_path: Path,
         transform: Callable | None = None,
         split: Literal["train", "val", "test"] = "train",
+        train_ratio: float = 0.8,
+        val_ratio: float = 0.1,
+        seed: int = 42,
     ) -> None:
         self.data_path = Path(data_path)
         self.transform = transform
         self.split = split
+        self.train_ratio = train_ratio
+        self.val_ratio = val_ratio
+        self.seed = seed
 
         self.image_paths: list[Path] = []
         self.labels: list[int] = []
@@ -42,21 +55,48 @@ class RiceDataset(Dataset):
         self._load_dataset()
 
     def _load_dataset(self) -> None:
-        """Scan directory and build list of image paths and labels."""
+        """Scan directory and build list of image paths and labels for the specified split."""
         if not self.data_path.exists():
             raise FileNotFoundError(f"Dataset path not found: {self.data_path}")
 
+        # Collect all images per class, then split each class proportionally
         for class_idx, class_name in enumerate(self.CLASSES):
             class_dir = self.data_path / class_name
             if not class_dir.exists():
                 continue
 
-            for img_path in class_dir.glob("*.jpg"):
+            # Get all images for this class and sort for reproducibility
+            class_images = sorted(class_dir.glob("*.jpg"))
+
+            if len(class_images) == 0:
+                continue
+
+            # Shuffle with fixed seed for reproducibility
+            import random
+
+            rng = random.Random(self.seed)
+            class_images_shuffled = class_images.copy()
+            rng.shuffle(class_images_shuffled)
+
+            # Calculate split indices
+            n_total = len(class_images_shuffled)
+            n_train = int(n_total * self.train_ratio)
+            n_val = int(n_total * self.val_ratio)
+
+            # Split: train = [0:n_train], val = [n_train:n_train+n_val], test = [n_train+n_val:]
+            if self.split == "train":
+                split_images = class_images_shuffled[:n_train]
+            elif self.split == "val":
+                split_images = class_images_shuffled[n_train : n_train + n_val]
+            else:  # test
+                split_images = class_images_shuffled[n_train + n_val :]
+
+            for img_path in split_images:
                 self.image_paths.append(img_path)
                 self.labels.append(class_idx)
 
         if len(self.image_paths) == 0:
-            raise ValueError(f"No images found in {self.data_path}")
+            raise ValueError(f"No images found in {self.data_path} for split '{self.split}'")
 
     def __len__(self) -> int:
         """Return the length of the dataset."""
@@ -140,9 +180,7 @@ def get_transforms(split: Literal["train", "val", "test"]) -> transforms.Compose
                 transforms.RandomRotation(15),
                 transforms.ColorJitter(brightness=0.2, contrast=0.2),
                 transforms.ToTensor(),
-                transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-                ),
+                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
             ]
         )
     else:
@@ -150,9 +188,7 @@ def get_transforms(split: Literal["train", "val", "test"]) -> transforms.Compose
             [
                 transforms.Resize((224, 224)),
                 transforms.ToTensor(),
-                transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-                ),
+                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
             ]
         )
 
