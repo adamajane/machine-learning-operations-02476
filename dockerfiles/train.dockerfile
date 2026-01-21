@@ -13,11 +13,14 @@ COPY src src/
 
 RUN uv sync --frozen
 
-# Replace CPU PyTorch with CUDA version using uv pip
-# --reinstall forces replacement of existing CPU version
-RUN uv pip install --reinstall \
+# Remove CPU PyTorch and install CUDA version
+RUN uv pip uninstall torch torchvision && \
+    uv pip install \
     --index-url ${TORCH_CUDA_INDEX} \
     --extra-index-url https://pypi.org/simple \
     torch==2.6.0 torchvision==0.21.0
+
+# Verify CUDA is available (will print during build)
+RUN uv run python -c "import torch; print(f'PyTorch version: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}'); print(f'CUDA version: {torch.version.cuda if torch.cuda.is_available() else \"N/A\"}')"
 
 ENTRYPOINT ["uv", "run", "src/rice_cnn_classifier/train.py"]
