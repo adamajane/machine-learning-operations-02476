@@ -2,6 +2,8 @@
 
 A short description of the project.
 
+The primary objective of this project is to build a robust, production-ready MLOps pipeline for classifying five different varieties of rice grains: Arborio, Basmati, Ipsala, Jasmine, and Karacadag.
+
 ## Project structure
 
 The directory structure of the project looks like this:
