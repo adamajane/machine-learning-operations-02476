@@ -116,7 +116,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 1 fill here ---
+Group: MLOps 1
 
 ### Question 2
 > **Enter the study number for each member in the group**
@@ -127,7 +127,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 2 fill here ---
+s214927, s253843, s195099, s211048, s211917
 
 ### Question 3
 > **A requirement to the project is that you include a third-party package not covered in the course. What framework**
@@ -141,7 +141,14 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 3 fill here ---
+We used scikit-learn, specifically the `sklearn.metrics` module, as our third-party package. It gave us a clean,
+well-tested set of evaluation utilities that are not part of the course stack. We relied on `classification_report` and
+the standard scorers like `accuracy_score`, `precision_score`, `recall_score`, and `f1_score` to evaluate model
+predictions in a consistent way across experiments. This allowed us to compare models using the same metric definitions
+and to surface class-imbalance effects instead of relying on accuracy alone. We also used the metrics output as part of
+our logging and reporting so the results were easy to communicate and reproduce. Overall, scikit-learn metrics saved us
+time, reduced the chance of implementing metrics incorrectly, and made our evaluation pipeline more robust and
+transparent.
 
 ## Coding environment
 
@@ -161,7 +168,14 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 4 fill here ---
+We managed dependencies in a single `pyproject.toml`, with a locked environment captured in `uv.lock`.
+Core tools (mkdocs, ruff, pre-commit, etc.) live under `[project].dependencies`, and exercise-specific packages are
+listed under `[dependency-groups].exercises` to keep optional tooling separate. For a new team member to get an exact
+copy of the environment, install Python 3.11+, install `uv`, and from the repository root run `uv sync` to create and
+hydrate the virtual environment from `uv.lock`. This pins both direct and transitive versions, ensuring a bit-for-bit
+match with the development setup. If they only need to build the documentation locally, the same environment works and
+they can start the server via `uv run mkdocs serve`. Any changes to dependencies are made in `pyproject.toml` and then
+re-locked with `uv lock` so the lockfile stays authoritative.
 
 ### Question 5
 
@@ -177,7 +191,12 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 5 fill here ---
+We initialized the repository from the MLOps cookiecutter template and largely kept the standard layout. The main code
+lives in `src/rice_cnn_classifier/` with `data.py`, `model.py`, `train.py`, `evaluate.py`, and `visualize.py`, plus the
+package `__init__.py`. We use `configs/` and top-level `config_*.yaml` files for experiment settings, `data/` and
+`models/` for DVC-tracked inputs and artifacts, and `dockerfiles/` for container builds. The `docs/` folder contains
+our mkdocs documentation, `reports/` holds the exam answers, and `notebooks/` is not used. We also
+added cloud build and Vertex AI training configs to support remote runs. We did not remove any template folders.
 
 ### Question 6
 
@@ -192,7 +211,20 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 6 fill here ---
+We did not enforce strict code-quality rules during development. The template includes Ruff and a pre-commit setup
+(and we kept the 120-character line-length setting), but we did not use pre-commit hooks, did not enable mandatory
+lint/format checks in CI, and did not run them consistently. We also did not add a static type checker such as mypy;
+type hints are used only where they were helpful, and many functions are untyped. Documentation follows the template
+in a lightweight way: short module and function docstrings for the most important pieces, but not comprehensive API
+docs. In larger projects, these practices matter because they reduce ambiguity and prevent regressions as the team
+grows. Linting/formatting avoids style debates and makes diffs easier to review, while typing catches interface
+mismatches early and helps IDEs with autocomplete and refactoring. Clear docstrings and documentation make it possible
+for new team members to understand assumptions and reuse components without re-reading the entire codebase.
+
+Eller?
+
+No, we did not use any rules or alike actively.
+
 
 ## Version control
 
@@ -241,7 +273,12 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 9 fill here ---
+We did make use of branches and pull requests, but not exclusively. Most work was done on short-lived
+`feature/<name>` branches, and we opened PRs back into `main` for larger changes. This helped us keep `main` relatively stable and provided a
+simple record of why changes were made. However, for small, quick fixes we sometimes committed directly to `main`
+without a PR. Using branches and PRs improves version control because it isolates experiments, makes it easier to
+review changes before merging, and reduces the risk of breaking the shared codebase. The review step also helps catch
+bugs early and encourages more consistent code style across the team.
 
 ### Question 10
 
@@ -256,7 +293,14 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 10 fill here ---
+Yes, we used DVC for managing data. We defined a simple DVC pipeline in `dvc.yaml` with a `preprocess` stage that runs
+`src/rice_cnn_classifier/data.py` to transform `data/raw` into `data/processed`, and we configured a remote storage
+bucket in `.dvc/config` for pushing and pulling the data artifacts. This gave us version control over the processed
+dataset without storing large files in Git. It also made the preprocessing step reproducible: if the code or raw data
+changes, DVC can recompute the outputs and track the new version, so everyone trains on the same dataset snapshot.
+Having data versions tied to the pipeline helped us compare experiments fairly and roll back to earlier datasets when
+results changed. Overall, DVC improved collaboration and reproducibility by keeping data, code, and pipeline metadata
+in sync.
 
 ### Question 11
 
@@ -273,7 +317,19 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 11 fill here ---
+Our CI is implemented with GitHub Actions and split across multiple workflows. We run unit tests and coverage in
+`.github/workflows/tests.yaml` on every push and pull request to `main`. The test job uses `uv` to sync the dev
+dependencies and then runs `pytest` under coverage. We test a small matrix: Ubuntu only, with Python 3.11 and 3.12.
+There is a separate linting workflow in `.github/workflows/linting.yaml` that runs `ruff check` and `ruff format` on
+push/PR. We also have a scheduled `pre-commit` auto-update workflow that opens a PR when hook versions change, even
+though we did not actively run the hooks locally. In addition, we set up a build-and-push workflow for Docker images
+(`.github/workflows/publish-image.yaml`) that authenticates to GCP, builds the training image, pushes it to Artifact
+Registry, and submits a Vertex AI training job; this is triggered on pushes to `main` and a development branch.
+
+We did not set up explicit caching in CI (e.g., pip/uv cache or torch artifacts), so builds install dependencies fresh
+each run. The workflows are intentionally minimal to keep iteration simple, but the structure makes it straightforward
+to add caching or expand the OS matrix later. A concrete example of the test workflow lives in
+`.github/workflows/tests.yaml` in the repository.
 
 ## Running code and tracking experiments
 
@@ -371,7 +427,12 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 17 fill here ---
+We used several GCP services. Vertex AI was used to submit and run our training jobs in managed GPU-backed
+infrastructure. Cloud Storage (a data bucket) stored the raw and processed rice image datasets and model artifacts so
+they could be shared and versioned outside the repository. Artifact Registry hosted our Docker images that package the
+training code for cloud execution. Secret Manager stored API keys (primarily the Weights & Biases key) so credentials
+were not hard-coded in the repo or workflows. Finally, Service Accounts controlled access between these services,
+ensuring the CI/CD workflows and training jobs had the minimum required permissions.
 
 ### Question 18
 
@@ -386,16 +447,26 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 18 fill here ---
+We did not use Compute Engine directly or create VM instances ourselves. Instead, we ran training jobs through
+Vertex AI, which provisions and manages the underlying Compute Engine VMs for us. In our workflow, the Docker image is
+submitted to Vertex AI, and the service spins up the required machines on demand to execute the job, then tears them
+down afterward. We therefore did not manually choose VM types or configure instance templates in the Compute Engine
+console. If a concrete VM type is required, it is specified at the Vertex AI job level rather than through Compute
+Engine directly. This abstraction was sufficient for our project because it reduced operational overhead while still
+providing access to managed GPU-backed training when needed.
 
 ### Question 19
 
 > **Insert 1-2 images of your GCP bucket, such that we can see what data you have stored in it.**
-> **You can take inspiration from [this figure](figures/bucket.png).**
+> 
 >
 > Answer:
 
---- question 19 fill here ---
+
+![bucket](figures/bucket_1.png)
+![bucket](figures/bucket_2.png)
+
+
 
 ### Question 20
 
@@ -404,7 +475,8 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 20 fill here ---
+![bucket](figures/artifact_1.png)
+![bucket](figures/artifact_2.png)
 
 ### Question 21
 
@@ -412,8 +484,9 @@ will check the repositories and the code to verify your answers.
 > **your project. You can take inspiration from [this figure](figures/build.png).**
 >
 > Answer:
+Was only used for exercises
 
---- question 21 fill here ---
+![bucket](figures/cloud_build.png)
 
 ### Question 22
 
@@ -428,7 +501,13 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 22 fill here ---
+Yes, we trained in the cloud using Vertex AI. The training job is triggered from GitHub Actions when we push to
+`main`: the workflow builds a Docker image, pushes it to Artifact Registry, and then submits a Vertex AI custom job
+with the container and training command. The job pulls data from our Cloud Storage bucket and writes model artifacts
+back to the bucket. This setup let us run GPU-backed training without managing VMs directly and ensured the same
+containerized environment was used locally and in the cloud. At the time of writing, the job runs on each push; we are
+considering moving to an explicit API-triggered workflow (e.g., only on demand or for tagged releases) to avoid
+starting a full training run for every small change.
 
 ## Deployment
 
