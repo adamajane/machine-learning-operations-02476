@@ -8,7 +8,7 @@ import os
 import re
 from typing import Any, Dict, Optional, Mapping
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Body, FastAPI, HTTPException
 from google.auth import default as google_auth_default
 from google.auth.transport.requests import Request as GoogleAuthRequest
 from pydantic import BaseModel
@@ -159,7 +159,7 @@ def health() -> dict[str, str]:
 
 
 @app.post("/train", response_model=TrainResponse)
-def start_training(request: TrainRequest) -> TrainResponse:
+def start_training(request: TrainRequest | None = Body(default=None)) -> TrainResponse:
     """Start a new training job on Vertex AI using config_gpu.yaml.
 
     Args:
@@ -169,6 +169,7 @@ def start_training(request: TrainRequest) -> TrainResponse:
         Metadata about the newly created training job.
     """
 
+    request = request or TrainRequest()
     project_id = _resolve_setting(request.project_id, "VERTEX_PROJECT_ID")
     region = _resolve_setting(request.region, "VERTEX_REGION")
     config_path = os.getenv("VERTEX_JOB_CONFIG_PATH", "config_gpu.yaml")
