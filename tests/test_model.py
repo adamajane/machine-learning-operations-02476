@@ -15,8 +15,6 @@ import pytest
 from rice_cnn_classifier.model import RiceCNN
 
 
-
-
 def test_model_is_torch_module():
     model = RiceCNN(num_classes=5)
     assert isinstance(model, torch.nn.Module)
@@ -77,4 +75,5 @@ def test_model_rejects_wrong_input_size_64():
 
 if __name__ == "__main__":
     import pytest
+
     raise SystemExit(pytest.main([__file__]))

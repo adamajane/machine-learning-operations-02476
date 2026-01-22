@@ -134,8 +134,7 @@ def _get_secret_value(project_id: str, secret_name: str) -> Optional[str]:
     """
 
     url = (
-        "https://secretmanager.googleapis.com/v1/"
-        f"projects/{project_id}/secrets/{secret_name}/versions/latest:access"
+        "https://secretmanager.googleapis.com/v1/" f"projects/{project_id}/secrets/{secret_name}/versions/latest:access"
     )
     headers = {"Authorization": f"Bearer {_get_access_token()}"}
     response = requests.get(url, headers=headers, timeout=30)
