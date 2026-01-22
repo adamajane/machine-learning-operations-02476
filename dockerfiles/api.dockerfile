@@ -10,9 +10,10 @@ RUN uv pip install --system \
     requests>=2.32.0 \
     uvicorn==0.34.0
 
-COPY src src/
+COPY src/rice_cnn_classifier/api.py /app/api.py
 COPY config_gpu.yaml config_gpu.yaml
 
 ENV PYTHONPATH=/app/src
 
-ENTRYPOINT ["sh", "-c", "python -m uvicorn rice_cnn_classifier.api:app --host 0.0.0.0 --port ${PORT:-8000}"]
+ENTRYPOINT ["sh", "-c", "python -m uvicorn api:app --host 0.0.0.0 --port ${PORT:-8000}"]
+
