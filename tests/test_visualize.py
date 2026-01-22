@@ -37,7 +37,6 @@ def test_create_sample_predictions_grid():
 
 def test_create_per_class_metrics_figure():
     """Tester bar-chart figuren for præcision, recall og f1-score."""
-    # Dummy data der matcher formatet fra evaluate.py
     metrics_dict = {
         "precision": {"Arborio": 0.8, "Basmati": 0.9},
         "recall": {"Arborio": 0.75, "Basmati": 0.85},
@@ -48,7 +47,6 @@ def test_create_per_class_metrics_figure():
     fig = create_per_class_metrics_figure(metrics_dict, classes)
 
     assert isinstance(fig, matplotlib.figure.Figure)
-    # Tjekker at der er genereret axes til plottet
     assert len(fig.axes) > 0
 
 
@@ -61,5 +59,4 @@ def test_create_accuracy_comparison_figure():
     fig = create_accuracy_comparison_figure(classes, class_acc, overall_acc)
 
     assert isinstance(fig, matplotlib.figure.Figure)
-    # Verificerer at figuren indeholder data
     assert len(fig.axes) > 0
