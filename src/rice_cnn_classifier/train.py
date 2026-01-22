@@ -8,6 +8,7 @@ import wandb
 from rice_cnn_classifier.model import RiceCNN
 from rice_cnn_classifier.data import RiceDataset, get_transforms
 
+
 # Test push
 def train(
     epochs: int = 10,
@@ -22,9 +23,7 @@ def train(
     # Hyperparameters
     print("SCRIPT STARTED: Rice Classifier Training")
     device = torch.device(
-        "mps"
-        if torch.backends.mps.is_available()
-        else "cuda" if torch.cuda.is_available() else "cpu"
+        "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu"
     )
     print(f"Using device: {device}")
 
@@ -59,16 +58,10 @@ def train(
     # Datasets
     try:
         print("Analyzing dataset files... (This may take a few minutes on GCS)")
-        train_dataset = RiceDataset(
-            data_path=data_path, split="train", transform=get_transforms("train")
-        )
-        val_dataset = RiceDataset(
-            data_path=data_path, split="val", transform=get_transforms("val")
-        )
+        train_dataset = RiceDataset(data_path=data_path, split="train", transform=get_transforms("train"))
+        val_dataset = RiceDataset(data_path=data_path, split="val", transform=get_transforms("val"))
     except FileNotFoundError:
-        print(
-            f"Error: Data directory '{data_path}' not found. Please run 'dvc repro' first."
-        )
+        print(f"Error: Data directory '{data_path}' not found. Please run 'dvc repro' first.")
         return
 
     # DataLoaders
@@ -120,9 +113,7 @@ def train(
 
         val_acc = 100 * val_correct / val_total
 
-        print(
-            f"Epoch [{epoch+1}/{epochs}], Loss: {avg_loss:.4f}, Train Acc: {train_acc:.2f}%, Val Acc: {val_acc:.2f}%"
-        )
+        print(f"Epoch [{epoch+1}/{epochs}], Loss: {avg_loss:.4f}, Train Acc: {train_acc:.2f}%, Val Acc: {val_acc:.2f}%")
 
         # Log metrics to WandB
         if not disable_wandb:
