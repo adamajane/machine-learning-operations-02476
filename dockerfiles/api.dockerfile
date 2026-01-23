@@ -11,7 +11,7 @@ RUN uv pip install --system \
     uvicorn==0.34.0
 
 COPY src/rice_cnn_classifier/api.py /app/api.py
-COPY config_gpu.yaml config_gpu.yaml
+COPY configs/gpu.yaml configs/gpu.yaml
 
 ENV PYTHONPATH=/app/src
 

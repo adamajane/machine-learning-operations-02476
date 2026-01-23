@@ -22,5 +22,5 @@ def test_load_config():
     # Test internal helper logic
     from rice_cnn_classifier.api import _load_config
 
-    config = _load_config("config_gpu.yaml", {"WANDB_API_KEY": "fake_key"})
+    config = _load_config("configs/gpu.yaml", {"WANDB_API_KEY": "fake_key"})
     assert isinstance(config, dict)

@@ -159,7 +159,7 @@ def health() -> dict[str, str]:
 
 @app.post("/train", response_model=TrainResponse)
 def start_training(request: TrainRequest | None = Body(default=None)) -> TrainResponse:
-    """Start a new training job on Vertex AI using config_gpu.yaml.
+    """Start a new training job on Vertex AI using configs/gpu.yaml.
 
     Args:
         request: Training configuration supplied by the client.
@@ -171,7 +171,7 @@ def start_training(request: TrainRequest | None = Body(default=None)) -> TrainRe
     request = request or TrainRequest()
     project_id = _resolve_setting(request.project_id, "VERTEX_PROJECT_ID")
     region = _resolve_setting(request.region, "VERTEX_REGION")
-    config_path = os.getenv("VERTEX_JOB_CONFIG_PATH", "config_gpu.yaml")
+    config_path = os.getenv("VERTEX_JOB_CONFIG_PATH", "configs/gpu.yaml")
     wandb_secret_name = os.getenv("WANDB_SECRET_NAME", "WANDB_API_KEY")
     with open(config_path, "r", encoding="utf-8") as handle:
         raw_config = handle.read()
