@@ -57,10 +57,10 @@ will check the repositories and the code to verify your answers.
 - [x] Remember to comply with good coding practices (`pep8`) while doing the project (M7)
 - [x] Do a bit of code typing and remember to document essential parts of your code (M7)
 - [x] Setup version control for your data or part of your data (M8)
-- [ ] Add command line interfaces and project commands to your code where it makes sense (M9)
+- [x] Add command line interfaces and project commands to your code where it makes sense (M9)
 - [x] Construct one or multiple docker files for your code (M10)
 - [x] Build the docker files locally and make sure they work as intended (M10)
-- [ ] Write one or multiple configurations files for your experiments (M11)
+- [x] Write one or multiple configurations files for your experiments (M11)
 - [ ] Used Hydra to load the configurations and manage your hyperparameters (M11)
 - [ ] Use profiling to optimize your code (M12)
 - [ ] Use logging to log important events in your code (M14)
@@ -75,7 +75,7 @@ will check the repositories and the code to verify your answers.
 - [x] Calculate the code coverage (M16)
 - [x] Get some continuous integration running on the GitHub repository (M17)
 - [x] Add caching and multi-os/python/pytorch testing to your continuous integration (M17)
-- [ ] Add a linting step to your continuous integration (M17)
+- [x] Add a linting step to your continuous integration (M17)
 - [ ] Add pre-commit hooks to your version control setup (M18)
 - [ ] Add a continues workflow that triggers when data changes (M19)
 - [x] Add a continues workflow that triggers when changes to the model registry is made (M19)
@@ -105,7 +105,7 @@ will check the repositories and the code to verify your answers.
 - [ ] Write some documentation for your application (M32)
 - [ ] Publish the documentation to GitHub Pages (M32)
 - [ ] Revisit your initial project description. Did the project turn out as you wanted?
-- [ ] Create an architectural diagram over your MLOps pipeline
+- [x] Create an architectural diagram over your MLOps pipeline
 - [x] Make sure all group members have an understanding about all parts of the project
 - [x] Uploaded all your code to GitHub
 
@@ -175,8 +175,7 @@ We managed dependencies in a single `pyproject.toml`, with a locked environment 
 Core tools (mkdocs, ruff, pre-commit, etc.) live under `[project].dependencies`, and exercise-specific packages are
 listed under `[dependency-groups].exercises` to keep optional tooling separate. For a new team member to get an exact
 copy of the environment, install Python 3.11+, install `uv`, and from the repository root run `uv sync` to create and
-hydrate the virtual environment from `uv.lock`. This pins both direct and transitive versions, ensuring a bit-for-bit
-match with the development setup. If they only need to build the documentation locally, the same environment works and
+hydrate the virtual environment from `uv.lock`. This locks all dependency versions, so you get the same environment as the development setup. If they only need to build the documentation locally, the same environment works and
 they can start the server via `uv run mkdocs serve`. Any changes to dependencies are made in `pyproject.toml` and then
 re-locked with `uv lock` so the lockfile stays authoritative.
 
@@ -194,7 +193,7 @@ re-locked with `uv lock` so the lockfile stays authoritative.
 >
 > Answer:
 
-We initialized the repository from the MLOps cookiecutter template and largely kept the standard layout. The main code
+We initialized the repository from the MLOps Cookiecutter template and largely kept the standard layout. The main code
 lives in `src/rice_cnn_classifier/` with `data.py`, `model.py`, `train.py`, `evaluate.py`, and `visualize.py`, plus the
 package `__init__.py`. We use `configs/` and top-level `config_*.yaml` files for experiment settings, `data/` and
 `models/` for DVC-tracked inputs and artifacts, and `dockerfiles/` for container builds. The `docs/` folder contains
@@ -214,19 +213,7 @@ added cloud build and Vertex AI training configs to support remote runs. We did 
 >
 > Answer:
 
-We did not enforce strict code-quality rules during development. The template includes Ruff and a pre-commit setup
-(and we kept the 120-character line-length setting), but we did not use pre-commit hooks, did not enable mandatory
-lint/format checks in CI, and did not run them consistently. We also did not add a static type checker such as mypy;
-type hints are used only where they were helpful, and many functions are untyped. Documentation follows the template
-in a lightweight way: short module and function docstrings for the most important pieces, but not comprehensive API
-docs. In larger projects, these practices matter because they reduce ambiguity and prevent regressions as the team
-grows. Linting/formatting avoids style debates and makes diffs easier to review, while typing catches interface
-mismatches early and helps IDEs with autocomplete and refactoring. Clear docstrings and documentation make it possible
-for new team members to understand assumptions and reuse components without re-reading the entire codebase.
-
-Eller?
-
-No, we did not use any rules or alike actively.
+We did not enforce strict code-quality rules during development. The template includes Ruff and a pre-commit setup (and we kept the 120-character line-length setting), but we did not use pre-commit hooks, did not enable mandatory lint/format checks in CI, and did not run them consistently. We also did not add a static type checker such as mypy; type hints are used only where they were helpful, and many functions are untyped. Documentation follows the template in a lightweight way: short module and function docstrings for the most important pieces, but not comprehensive API docs. In larger projects, these practices matter because they reduce ambiguity and prevent regressions as the team grows. Linting/formatting avoids style debates and makes diffs easier to review, while typing catches interface mismatches early and helps IDEs with autocomplete and refactoring. Clear docstrings and documentation make it possible for new team members to understand assumptions and reuse components without re-reading the entire codebase.
 
 ## Version control
 
@@ -245,8 +232,8 @@ No, we did not use any rules or alike actively.
 >
 > Answer:
 
-In total, we have implemented 19 tests organized into 7 functional test suites. Primarily, we are testing our training pipeline (86% coverage) and model architecture (75%) to ensure training stability and correct tensor flow. We also test our data loading logic (70%) to verify deterministic splitting and our visualization suite (100%) to ensure accurate performance logging. Furthermore, we verify our evaluation logic (74%), FastAPI backend (49%), and Gradio frontend (56%), ensuring a robust end-to-end system from data to the user interface.
-****
+In total, we have implemented 19 tests organized into 7 functional test suites. Primarily, we are testing our training pipeline (86% coverage) and model architecture (75%) to ensure training stability and correct tensor flow. We also test our data loading logic (70%) to verify deterministic splitting and our visualization suite (100%) to ensure accurate performance logging. Furthermore, we verify our evaluation logic (74%), FastAPI backend (49%), and Gradio frontend (56%), ensuring a robust system from data to the user interface.
+
 ### Question 8
 
 > **What is the total code coverage (in percentage) of your code? If your code had a code coverage of 100% (or close**
@@ -260,7 +247,7 @@ In total, we have implemented 19 tests organized into 7 functional test suites. 
 >
 > Answer:
 
-The total code coverage of our project is 71%, representing a comprehensive and robust testing suite across all functional modules. We achieved high coverage on the most critical components of the ML lifecycle, specifically 86% for the training pipeline and 75% for the model architecture, ensuring execution stability and correct tensor flow. Furthermore, our visualization utilities reached 100% coverage, while evaluation and data scripts reached 74% and 70% respectively. While the deployment layer consisting of the API and frontend stands at 49% and 56%, these tests are sufficient to verify health checks, configuration loading, and basic user interactions.
+The total code coverage of our project is 71%, representing a fairly robust testing suite across all functional modules. We achieved high coverage on the most critical components of the ML lifecycle, specifically 86% for the training pipeline and 75% for the model architecture, ensuring execution stability and correct tensor flow. Furthermore, our visualization utilities reached 100% coverage, while evaluation and data scripts reached 74% and 70% respectively. While the deployment layer consisting of the API and frontend stands at 49% and 56%, these tests are sufficient to verify health checks, configuration loading, and basic user interactions.
 Even with 100% coverage, we would not trust the code to be entirely error-free. Coverage measures which lines were executed, not the correctness of the underlying logic. A test can execute a line without asserting the intended outcome, and coverage metrics often miss complex edge cases. Moreover, in an MLOps context, code coverage cannot detect "silent failures" such as data drift, model bias, or subtle integration issues with cloud services like GCS and Vertex AI. High coverage is a valuable tool for reducing risk, but it is not a substitute for comprehensive integration testing and real-time system monitoring.
 
 ### Question 9
@@ -296,7 +283,7 @@ bugs early and encourages more consistent code style across the team.
 >
 > Answer:
 
-Yes, we used DVC for managing data. We defined a simple DVC pipeline in `dvc.yaml` with a `preprocess` stage that runs
+We used DVC for managing our data. We defined a simple DVC pipeline in `dvc.yaml` with a `preprocess` stage that runs
 `src/rice_cnn_classifier/data.py` to transform `data/raw` into `data/processed`, and we configured a remote storage
 bucket in `.dvc/config` for pushing and pulling the data artifacts. This gave us version control over the processed
 dataset without storing large files in Git. It also made the preprocessing step reproducible: if the code or raw data
@@ -351,7 +338,10 @@ to add caching or expand the OS matrix later. A concrete example of the test wor
 >
 > Answer:
 
---- question 12 fill here ---
+We used Typer to create a command-line interface for our training script. Hyperparameters are passed as arguments
+directly: `uv run python src/rice_cnn_classifier/train.py --epochs 10 --batch-size 32 --learning-rate 0.001`. For
+cloud training on Vertex AI, we use YAML configuration files (`config_cpu.yaml` and `config_gpu.yaml`) that specify
+machine type, GPU accelerator, environment variables, and training arguments in a single file.
 
 ### Question 13
 
@@ -366,7 +356,12 @@ to add caching or expand the OS matrix later. A concrete example of the test wor
 >
 > Answer:
 
---- question 13 fill here ---
+We ensure reproducibility through several mechanisms. First, every training run is logged to Weights & Biases with the
+full configuration (epochs, batch size, learning rate, architecture, device) stored automatically. Second, we use
+`uv.lock` to pin all Python dependencies to exact versions. Third, data is versioned with DVC and stored in a GCS
+bucket, so the dataset can be reproduced exactly via `dvc pull`. Fourth, Docker containers ensure the same environment
+is used locally and in the cloud. To reproduce an experiment, one would check out the corresponding commit, run
+`dvc pull` to fetch the data snapshot, and then use the same training command logged in WandB with the same config.
 
 ### Question 14
 
@@ -383,7 +378,23 @@ to add caching or expand the OS matrix later. A concrete example of the test wor
 >
 > Answer:
 
---- question 14 fill here ---
+![wandb_training](figures/wandb_training_logs.png)
+
+As seen in the first image, we track `train/loss`, `train/accuracy`, and `val/accuracy` over epochs. The training loss
+decreases steadily from ~0.14 to below 0.04, indicating the model is learning effectively. Both training and validation
+accuracy climb to above 99%, showing strong generalization without significant overfitting. These metrics are essential
+for monitoring convergence and detecting problems like overfitting or vanishing gradients early.
+
+![confusion_matrix](figures/model_confusion_matrix.png)
+
+The confusion matrix shows per-class performance on the test set. Diagonal values (14,917 for Arborio, 14,955 for
+Basmati, etc.) represent correct classifications, while off-diagonal values show misclassifications. This helps us
+identify which rice varieties are confused with each other. For example, Jasmine has 18 samples misclassified as
+Arborio and 16 as Basmati, suggesting visual similarity between these classes.
+
+![predictions](figures/model_predictions.png)
+
+The sample predictions grid shows 16 randomly selected test images with their true and predicted labels, whics complements our numerical metrics of performance.
 
 ### Question 15
 
@@ -398,7 +409,13 @@ to add caching or expand the OS matrix later. A concrete example of the test wor
 >
 > Answer:
 
---- question 15 fill here ---
+We developed a training Docker image (`dockerfiles/train.dockerfile`) based on `ghcr.io/astral-sh/uv:python3.12-bookworm-slim`.
+The image uses UV for dependency management and installs PyTorch with CUDA support for GPU training. It leverages
+layer caching by first syncing dependencies without the project, then copying source code and syncing again. To run
+the training image locally: `docker build -f dockerfiles/train.dockerfile -t rice-train . && docker run rice-train
+--epochs 5 --batch-size 32`. In production, the image is built by GitHub Actions, pushed to GCP Artifact Registry,
+and used by Vertex AI for cloud training. Link to Dockerfile:
+[dockerfiles/train.dockerfile](https://github.com/adamajane/machine-learning-operations-02476-project/blob/main/dockerfiles/train.dockerfile)
 
 ### Question 16
 
@@ -413,7 +430,7 @@ to add caching or expand the OS matrix later. A concrete example of the test wor
 >
 > Answer:
 
---- question 16 fill here ---
+Debugging was primarily done through print statements and with the help of AI. During development, we added diagnostic prints throughout the training script (device detection, data path confirmation, epoch progress) to trace program execution, especially when debugging cloud runs where interactive debugging is not possible. We did not perform formal profiling of our code. The training pipeline is relatively straightforward (standard CNN, PyTorch DataLoader) and did not show any obvious bottlenecks. In hindsight, profiling the data loading pipeline could have identified opportunities to optimize GCS data access, which was noticeably slower than local disk reads.
 
 ## Working in the cloud
 
@@ -430,12 +447,7 @@ to add caching or expand the OS matrix later. A concrete example of the test wor
 >
 > Answer:
 
-We used several GCP services. Vertex AI was used to submit and run our training jobs in managed GPU-backed
-infrastructure. Cloud Storage (a data bucket) stored the raw and processed rice image datasets and model artifacts so
-they could be shared and versioned outside the repository. Artifact Registry hosted our Docker images that package the
-training code for cloud execution. Secret Manager stored API keys (primarily the Weights & Biases key) so credentials
-were not hard-coded in the repo or workflows. Finally, Service Accounts controlled access between these services,
-ensuring the CI/CD workflows and training jobs had the minimum required permissions.
+We used several GCP services. Vertex AI was used to submit and run our training jobs in managed infrastructure. Cloud Storage (a data bucket) stored the raw and processed rice image datasets and model artifacts so they could be shared and versioned outside the repository. Artifact Registry hosted our Docker images that package the training code for cloud execution. Secret Manager stored API keys (primarily the Weights & Biases key) to prevent credentials from being hard-coded in the repo or workflows. Finally, Service Accounts controlled access between these services, ensuring the CI/CD workflows and training jobs had the minimum required permissions.
 
 ### Question 18
 
@@ -456,7 +468,7 @@ submitted to Vertex AI, and the service spins up the required machines on demand
 down afterward. We therefore did not manually choose VM types or configure instance templates in the Compute Engine
 console. If a concrete VM type is required, it is specified at the Vertex AI job level rather than through Compute
 Engine directly. This abstraction was sufficient for our project because it reduced operational overhead while still
-providing access to managed GPU-backed training when needed.
+providing access to managed training when needed.
 
 ### Question 19
 
@@ -518,9 +530,7 @@ starting a full training run for every small change.
 > Answer:
 > We did manage to write an API for our model. We used FastAPI, creating a structured interface to trigger machine learning training runs on Google Vertex AI. We implemented a /train POST endpoint that accepts a TrainRequest containing the project ID, region, and job display name.
 
-A special feature of our API is its robust configuration management: it dynamically loads a YAML config file (like config_gpu.yaml) and uses regex to substitute environment variables. To make the API more secure, we integrated Google Secret Manager to automatically fetch sensitive credentials, such as the WANDB_API_KEY, if they are not already present in the environment. Additionally, we included a /health GET endpoint to allow for easy monitoring of the service's status.
-
---- question 23 fill here ---
+A special feature of our API is its robust configuration management: it dynamically loads a YAML config file (e.g., [config_gpu.yaml](../config_gpu.yaml)) and uses regex to substitute environment variables. To make the API more secure, we integrated Google Secret Manager to automatically fetch sensitive credentials, such as the WANDB_API_KEY, if they are not already present in the environment. Additionally, we included a /health GET endpoint to allow for easy monitoring of the service's status.
 
 ### Question 24
 
@@ -536,12 +546,11 @@ A special feature of our API is its robust configuration management: it dynamica
 >
 > Answer:
 
-We wrapped our API into a containerized application using a Dockerfile. We first tested the service locally by running it with Uvicorn, which allowed us to verify the training triggers before moving to the cloud. We then deployed it to the cloud using Google Cloud Run, a serverless platform that automatically handles scaling and provides a public HTTPS URL.
+We wrapped our API into a containerized application using a Dockerfile. We first tested the service locally by running it with Uvicorn, which allowed us to verify the training triggers before moving to the cloud. We then deployed it to the cloud using Google Cloud Run, a serverless platform that automatically handles scaling and provides a public HTTPS URL. To invoke the deployed service, a user would call the endpoint using a curl command like this:
 
-To invoke the deployed service, a user would call the endpoint using a curl command like this:
+`curl -X POST " https://rice-api-681024937248.europe-west1.run.app/train"`
 
-> _`curl -X POST " https://rice-api-681024937248.europe-west1.run.app/train"`_
-> This triggers the internal logic to resolve settings, fetch secrets, and launch a custom training job on Vertex AI.
+This triggers the internal logic to resolve settings, fetch secrets, and launch a custom training job on Vertex AI.
 
 ### Question 25
 
@@ -556,7 +565,7 @@ To invoke the deployed service, a user would call the endpoint using a curl comm
 >
 > Answer:
 
---- question 25 fill here ---
+We did not implement comprehensive unit tests or load tests for the API. The test files exist (`tests/test_api.py`) but are empty stubs. If we were to implement them, we would use pytest with FastAPI's `TestClient` for unit tests to verify endpoint behavior (health checks return 200, train endpoint validates input, error responses are correct). For load testing, we likely would have used Locust as this was the framework introduced in the course. Using this, we could simulate concurrent requests and measure response times and error rates under load. This would help us identify the maximum number of concurrent training triggers the API can handle before Cloud Run scales up or requests start failing.
 
 ### Question 26
 
@@ -571,7 +580,7 @@ To invoke the deployed service, a user would call the endpoint using a curl comm
 >
 > Answer:
 
-We did not manage to implement monitoring of our deployed model. If it were in place, we would use it to track both system health (latency, error rates, resource usage) and model quality signals over time. For example, we would log prediction distributions and input feature statistics to detect data drift, and compare evaluation metrics on a held‑out or periodically labeled sample to detect performance degradation. Monitoring would also help catch issues such as failed training jobs, missing artifacts, or degraded availability before they impact users. Over time, these signals would inform when retraining is necessary, whether the data pipeline is stable, and if changes to the model or infrastructure are causing regressions. This would improve the longevity of the application by enabling proactive maintenance instead of reactive fixes.
+We did not manage to implement monitoring of our deployed model. If it were in place, we would use it to track both system health (latency, error rates, resource usage) and model quality signals over time. Monitoring would also help catch issues such as failed training jobs, missing artifacts, or degraded availability before they impact users. Over time, these signals would inform when retraining is necessary, whether the data pipeline is stable, and if changes to the model or infrastructure are causing regressions.
 
 ## Overall discussion of project
 
@@ -594,7 +603,6 @@ We ended up using all the available credits. In hindsight, we should have set up
 
 ![budget](figures/budget.png)
 
-
 ### Question 28
 
 > **Did you implement anything extra in your project that is not covered by other questions? Maybe you implemented**
@@ -609,7 +617,12 @@ We ended up using all the available credits. In hindsight, we should have set up
 >
 > Answer:
 
-ADAM DU MÅ LIGE SVARE PÅ DEN HER FOR FRONTEDN TIL API
+We implemented a frontend for our API using Gradio. The frontend provides two tabs: (1) an inference tab where users
+can upload a rice grain image and get classification predictions with confidence scores for all five rice varieties,
+and (2) a training tab that allows triggering new training jobs on Vertex AI directly from the UI. The frontend
+downloads the trained model from GCS, runs inference locally using PyTorch, and displays results as a label with
+probabilities. This makes the classifier accessible to users without technical knowledge and demonstrates an
+end-to-end ML application from training to user-facing inference.
 
 ### Question 29
 
@@ -628,6 +641,14 @@ ADAM DU MÅ LIGE SVARE PÅ DEN HER FOR FRONTEDN TIL API
 
 ![arc](figures/architecture.png)
 
+The diagram shows our MLOps pipeline starting from local development. Developers work in VS Code, pushing code to
+GitHub. On every push, GitHub Actions triggers a CI/CD workflow that builds Docker images and pushes them to GCP
+Artifact Registry. We have two container images: one for training and one for the API. The training image is pulled
+by Vertex AI, which fetches rice image data from Cloud Storage, runs training, logs metrics to Weights & Biases, and
+saves the trained model back to Cloud Storage. The API is deployed on Cloud Run and can trigger training jobs on
+Vertex AI. A separate Gradio frontend (also on Cloud Run) provides a user interface that communicates with the API
+for training requests and fetches the latest model from Cloud Storage for inference. DVC is used to push data
+versions to Cloud Storage, keeping large files out of Git while maintaining version control.
 
 ### Question 30
 
@@ -641,7 +662,18 @@ ADAM DU MÅ LIGE SVARE PÅ DEN HER FOR FRONTEDN TIL API
 >
 > Answer:
 
---- question 30 fill here ---
+The biggest challenge was integrating GCP services with our CI/CD pipeline. Setting up Vertex AI to pull the correct
+Docker image from Artifact Registry, authenticate with the right service account, access data in Cloud Storage, and
+pass secrets (like the WandB API key) required many iterations of trial and error. Error messages from Vertex AI were
+often cryptic, making debugging slow. We overcame this by starting with minimal configurations and adding complexity
+incrementally, testing each change. A particularly frustrating issue was getting GPU acceleration to work on Vertex
+AI. Despite configuring the Docker image with CUDA-enabled PyTorch and requesting NVIDIA T4 GPUs in our Vertex AI
+config, we never managed to get PyTorch to recognize the GPU inside the container. As a result, all cloud training
+ran on CPU, which was significantly slower and contributed to higher costs. Another major struggle was managing cloud
+costs overall. We did not set up budget alerts early, and the combination of slow CPU-based training runs and
+persistent Cloud Storage costs quickly consumed our credits. We learned to add guards (manual triggers for expensive
+jobs) and to clean up unused resources promptly. Finally, coordinating work across five team members with different
+schedules was challenging; we addressed this by using feature branches and keeping PRs small.
 
 ### Question 31
 
@@ -659,14 +691,16 @@ ADAM DU MÅ LIGE SVARE PÅ DEN HER FOR FRONTEDN TIL API
 > _We have used ChatGPT to help debug our code. Additionally, we used GitHub Copilot to help write some of our code._
 > Answer:
 
-fewafewubaofewnafioewnifowf ewafw afew afewafewafionewoanf waf ewonfieownaf fewnaiof newio fweanøf wea fewa
-fweafewa fewiagonwa ognwra'g
-wa
-gwreapig ipweroang w rag
-wa grwa
-g
-ew
-gwea g
-ew ag ioreabnguorwa bg̈́aw
-wa
-gew4igioera giroeahgi0wra gwa
+All team members contributed to the ideation, planning, and overall design of the MLOps pipeline, and each member wrote the report sections corresponding to their areas of responsibility.
+
+Student s214927 led the cloud computing infrastructure, including setting up Google Cloud Run for deployment, containerization with Docker, configuring DVC for data versioning, managing the Cloud Storage bucket, and developing the FastAPI backend.
+
+Student s253843 led the training pipeline and cloud execution, including the training script, Vertex AI job configuration, and integration with Google Secret Manager for secure credential handling.
+
+Students s211917 and s195099 jointly led the testing efforts, writing the test suites across all modules and establishing code coverage reporting integrated into the CI pipeline.
+
+Student s211048 led the core machine learning application, including the PyTorch model architecture, data processing pipeline, Weights & Biases experiment tracking integration, and the Gradio frontend for user-facing inference.
+
+All members assisted each other across these areas as needed and reviewed each other's pull requests.
+
+We used generative AI tools throughout the project. ChatGPT and Claude Code were used for code generation, particularly when integrating unfamiliar services or writing boilerplate. These tools were also invaluable for debugging, especially when different components of the pipeline (Docker, GCP services, PyTorch) did not work together as expected.
