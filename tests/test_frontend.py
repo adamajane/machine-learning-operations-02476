@@ -1,9 +1,9 @@
-import pytest
-from unittest.mock import patch, MagicMock
-from PIL import Image
+from unittest.mock import MagicMock, patch
+
 import torch
-import requests
-from rice_cnn_classifier.frontend import get_inference_transform, predict, trigger_training, download_model_from_gcs
+from PIL import Image
+
+from rice_cnn_classifier.frontend import download_model_from_gcs, get_inference_transform, predict, trigger_training
 
 
 # 1. Test Image Transformations

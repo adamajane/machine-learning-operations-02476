@@ -1,5 +1,4 @@
 import pytest
-from pathlib import Path
 from PIL import Image
 from rice_cnn_classifier.train import train
 

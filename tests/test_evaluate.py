@@ -1,7 +1,7 @@
-import torch
-import pytest
 import warnings
-from pathlib import Path
+
+import pytest
+import torch
 from PIL import Image
 
 from rice_cnn_classifier.evaluate import evaluate

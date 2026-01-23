@@ -1,6 +1,4 @@
 import torch
-import pytest
-from pathlib import Path
 from PIL import Image
 from rice_cnn_classifier.data import RiceDataset, get_transforms
 

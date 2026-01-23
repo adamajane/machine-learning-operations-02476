@@ -1,17 +1,6 @@
-import sys
-from pathlib import Path
-
-SRC = (Path(__file__).resolve().parents[1] / "src").resolve()
-sys.path.insert(0, str(SRC))
-
-# TEMP DEBUG (delete later)
-print("Using SRC path:", SRC)
-print("sys.path[0]:", sys.path[0])
-print("src exists:", SRC.exists())
-print("package exists:", (SRC / "rice_cnn_classifier").exists())
-
-import torch
 import pytest
+import torch
+
 from rice_cnn_classifier.model import RiceCNN
 
 
@@ -74,6 +63,4 @@ def test_model_rejects_wrong_input_size_64():
 
 
 if __name__ == "__main__":
-    import pytest
-
     raise SystemExit(pytest.main([__file__]))

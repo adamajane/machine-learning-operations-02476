@@ -68,7 +68,3 @@ def run_pipeline(ctx: Context) -> None:
     ctx.run("dvc repro", echo=True, pty=not WINDOWS)
 
 
-@task
-def preprocess_data(ctx: Context) -> None:
-    """Preprocess the raw data."""
-    ctx.run("uv run python src/rice_cnn_classifier/data.py data/raw data/processed", echo=True, pty=not WINDOWS)
