@@ -693,14 +693,11 @@ schedules was challenging; we addressed this by using feature branches and keepi
 
 All team members contributed to the ideation, planning, and overall design of the MLOps pipeline, and each member wrote the report sections corresponding to their areas of responsibility.
 
-Student s214927 led the cloud computing infrastructure, including setting up Google Cloud Run for deployment, containerization with Docker, configuring DVC for data versioning, managing the Cloud Storage bucket, and developing the FastAPI backend.
-
-Student s253843 led the training pipeline and cloud execution, including the training script, Vertex AI job configuration, and integration with Google Secret Manager for secure credential handling.
-
-Students s211917 and s195099 jointly led the testing efforts, writing the test suites across all modules and establishing code coverage reporting integrated into the CI pipeline.
-
-Student s211048 led the core machine learning application, including the PyTorch model architecture, data processing pipeline, Weights & Biases experiment tracking integration, and the Gradio frontend for user-facing inference.
+- Student s214927 led the cloud computing infrastructure, including setting up Google Cloud Run for deployment, containerization with Docker, configuring DVC for data versioning, managing the Cloud Storage bucket, and developing the FastAPI backend.
+- Student s253843 led the training pipeline and cloud execution, including the training script, Vertex AI job configuration, and integration with Google Secret Manager for secure credential handling.
+- Students s211917 and s195099 jointly led the testing efforts, writing the test suites across all modules and establishing code coverage reporting integrated into the CI pipeline.
+- Student s211048 led the core machine learning application, including the PyTorch model architecture, data processing pipeline, Weights & Biases experiment tracking integration, and the Gradio frontend for user-facing inference.
 
 All members assisted each other across these areas as needed and reviewed each other's pull requests.
 
-We used generative AI tools throughout the project. ChatGPT and Claude Code were used for code generation, particularly when integrating unfamiliar services or writing boilerplate. These tools were also invaluable for debugging, especially when different components of the pipeline (Docker, GCP services, PyTorch) did not work together as expected.
+We used generative AI tools throughout the project. ChatGPT and Claude Code were used for code generation, particularly when integrating unfamiliar services or writing boilerplate. These tools were also invaluable for debugging, especially when different components of the pipeline (Docker, GCP services, PyTorch, etc.) did not work together as expected.
