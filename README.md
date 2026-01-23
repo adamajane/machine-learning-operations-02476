@@ -1,32 +1,99 @@
-# machine-learning-operations-02476
+# Rice Grain Classifier
+
 Final project for the DTU course 02476 Machine Learning Operations
 
-The primary objective of this project is to build a robust, production-ready MLOps pipeline for classifying five different varieties of rice grains: **Arborio, Basmati, Ipsala, Jasmine, and Karacadag**. 
+## Project Description
 
-While the core technical task is a computer vision classification problem, the overarching goal is to apply the full "Machine Learning Operations" lifecycle to a large-scale dataset. We aim to move beyond a simple, static training script and instead create a system that is:
-* **Reproducible:** Using environment isolation and versioning so that any group member (and examiners) can replicate results.
-* **Scalable:** Efficiently managing a dataset of 75,000 images without bloating the version control system.
-* **Observable:** Tracking every experiment, hyperparameter tweak, and metric to make data-driven decisions about model selection.
-* **Deployable:** Packaging the final solution so that it is ready for real-world inference.
+This project implements a complete MLOps pipeline for classifying five varieties of rice grains: **Arborio**, **Basmati**, **Ipsala**, **Jasmine**, and **Karacadag**. While the core task is a classification problem, the focus is on applying the full Machine Learning Operations lifecycle—from data versioning and experiment tracking to containerized cloud training and user-facing deployment.
 
-## 2. Dataset
-We will be utilizing the [Rice Image Dataset](https://www.kaggle.com/datasets/muratkokludataset/rice-image-dataset) available on Kaggle. 
-* **Composition:** The dataset contains 75,000 high-resolution images of rice grains, divided equally (15,000 each) into the five target classes.
-* **Storage & Versioning:** Since the dataset size is significant, we will not store the images directly in GitHub. Instead, we will use **DVC (Data Version Control)** to track data versions. This allows us to keep our repository lightweight while maintaining a clear history of data transformations and splits.
-* **Preprocessing:** Our pipeline will include automated scripts for image resizing, normalization, and data augmentation to improve model generalization.
+## Objective
 
-# Model:
-We will implement a CNN architecture, utilizing either a custom-designed model or a pre-trained model. To ensure reproducibility and scalability, the experimentation pipeline will be managed using Hydra for configuration and orchestrated through bash scripts. All experimental results, including hyperparameters and performance metrics, will be logged to wandB.
+The objective is to build a production-ready ML system that is:
 
-# Tools:
+- **Reproducible:** Environment isolation via Docker and dependency locking with `uv.lock`, plus data versioning with DVC
+- **Scalable:** Cloud training on Google Vertex AI with data stored in GCP Cloud Storage
+- **Observable:** Full experiment tracking with Weights & Biases, logging metrics, artifacts, and visualizations
+- **Deployable:** Containerized API and Gradio frontend deployed on Google Cloud Run
 
-| Tool | Purpose in this Project |
-| :--- | :--- |
-| **PyTorch** | **Deep Learning Framework:** We will use PyTorch as our core engine for building and training the CNN. Its dynamic computation graph makes it ideal for iterative experimentation and debugging. We will specifically leverage `torchvision` for pre-trained ResNet models and efficient image transformations. |
-| **Docker** | **Environment Isolation:** We will containerize our training and inference code. This ensures the project runs identically across all group members' machines and avoids "dependency hell" |
-| **Hydra** | **Configuration Management:** We will use Hydra to manage hyperparameters (learning rate, batch size, etc.) and model architectures via YAML files. This allows us to run different experiments from the command line without modifying the core source code. |
-| **GitHub** | **Collaboration & CI/CD:** Beyond hosting our code, we will use GitHub Actions to automate code quality checks (linting) and unit tests every time a new feature is pushed to the repository. |
-| **Weights & Biases (WandB)** | **Experiment Tracking:** Every training run will be logged to WandB. This provides our group with a centralized dashboard to visualize training curves, compare different model versions, and store the resulting model artifacts. |
-|**DVC**| **Data Versioning:** Since we have 75k images, DVC will track our data versions and store the actual files in a remote cloud/local cache while keeping our GitHub repo light. |
+## Data
 
+We use the [Rice Image Dataset](https://www.kaggle.com/datasets/muratkokludataset/rice-image-dataset) from Kaggle.
 
+- **Size:** 75,000 images (15,000 per class)
+- **Classes:** Arborio, Basmati, Ipsala, Jasmine, Karacadag
+- **Preprocessing:** Images resized to 224×224, normalized with ImageNet statistics, with data augmentation (random horizontal flip, rotation, color jitter) applied to the training set
+- **Storage:** Data is versioned with DVC and stored in a GCP Cloud Storage bucket to keep the repository lightweight
+
+## Model
+
+We implemented a custom CNN architecture with:
+
+- Two convolutional layers (3→16→32 channels) with ReLU activation and max pooling
+- Fully connected layers (32×56×56 → 128 → 5 classes)
+- Trained with Adam optimizer and CrossEntropyLoss
+- Achieves **99%+ accuracy** on the test set across all five rice varieties
+
+## Frameworks & Tools
+
+| Tool                      | Purpose                                                      |
+| :------------------------ | :----------------------------------------------------------- |
+| **PyTorch**               | Deep learning framework for model architecture and training  |
+| **DVC**                   | Data versioning linked to GCP Cloud Storage                  |
+| **Docker**                | Containerization for reproducible environments               |
+| **GitHub Actions**        | CI/CD for testing, linting, and automated cloud deployments  |
+| **GCP Artifact Registry** | Docker image hosting                                         |
+| **GCP Vertex AI**         | Managed cloud training infrastructure                        |
+| **GCP Cloud Run**         | Serverless deployment for API and frontend                   |
+| **FastAPI**               | Backend API for triggering cloud training jobs               |
+| **Gradio**                | Frontend UI for image upload and inference                   |
+| **Weights & Biases**      | Experiment tracking, metrics logging, and artifact storage   |
+| **scikit-learn**          | Evaluation metrics (precision, recall, F1, confusion matrix) |
+
+## Results
+
+What we built:
+
+- A CNN classifier achieving 99%+ test accuracy on rice grain classification
+- Automated CI/CD pipeline with GitHub Actions for testing, linting, and deployment
+- Containerized training that runs on GCP Vertex AI
+- Data versioning with DVC backed by GCP Cloud Storage
+- Experiment tracking with Weights & Biases (loss curves, accuracy, confusion matrices, sample predictions)
+- FastAPI backend deployed on Cloud Run for triggering training jobs
+- Gradio frontend for user-friendly image classification
+- 71% code coverage across 19 tests
+
+## How to Run
+
+### Option 1: Use the Hosted Service
+
+The easiest way to try the classifier is via our deployed Gradio frontend:
+
+**[https://rice-frontend-681024937248.europe-west1.run.app](https://rice-frontend-681024937248.europe-west1.run.app)**
+
+> **Note:** The service runs on Cloud Run and may take 30-60 seconds to cold start on first load. Be patient.
+
+Upload a rice grain image and get classification predictions with confidence scores for all five varieties.
+
+### Option 2: Run Locally
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/adamajane/machine-learning-operations-02476-project.git
+   cd machine-learning-operations-02476-project
+   ```
+
+2. Install dependencies using [uv](https://github.com/astral-sh/uv):
+
+   ```bash
+   uv sync
+   ```
+
+3. Run the Gradio frontend:
+   ```bash
+   uv run python -m rice_cnn_classifier.frontend
+   ```
+
+> **Note:** On first run, the frontend will download the trained model from GCP Cloud Storage, which may take a moment.
+
+The frontend will be available at `http://0.0.0.0:7860`.
