@@ -9,7 +9,6 @@ from rice_cnn_classifier.model import RiceCNN
 from rice_cnn_classifier.data import RiceDataset, get_transforms
 
 
-# Test push
 def train(
     epochs: int = 10,
     batch_size: int = 32,
