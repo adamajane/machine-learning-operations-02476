@@ -36,7 +36,7 @@ def test_create_sample_predictions_grid():
 
 
 def test_create_per_class_metrics_figure():
-    """Tester bar-chart figuren for præcision, recall og f1-score."""
+    """Test bar-chart figure for precision, recall and f1-score"""
     metrics_dict = {
         "precision": {"Arborio": 0.8, "Basmati": 0.9},
         "recall": {"Arborio": 0.75, "Basmati": 0.85},
@@ -51,7 +51,7 @@ def test_create_per_class_metrics_figure():
 
 
 def test_create_accuracy_comparison_figure():
-    """Tester sammenligningsfiguren for klassenøjagtighed."""
+    """Test comparison figure for class accuracy"""
     class_acc = {"Arborio": 0.85, "Basmati": 0.92}
     overall_acc = 0.88
     classes = ["Arborio", "Basmati"]
