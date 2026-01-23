@@ -70,24 +70,24 @@ will check the repositories and the code to verify your answers.
 
 ### Week 2
 
-- [ ] Write unit tests related to the data part of your code (M16)
-- [ ] Write unit tests related to model construction and or model training (M16)
-- [ ] Calculate the code coverage (M16)
-- [ ] Get some continuous integration running on the GitHub repository (M17)
-- [ ] Add caching and multi-os/python/pytorch testing to your continuous integration (M17)
+- [x] Write unit tests related to the data part of your code (M16)
+- [x] Write unit tests related to model construction and or model training (M16)
+- [x] Calculate the code coverage (M16)
+- [x] Get some continuous integration running on the GitHub repository (M17)
+- [x] Add caching and multi-os/python/pytorch testing to your continuous integration (M17)
 - [ ] Add a linting step to your continuous integration (M17)
 - [ ] Add pre-commit hooks to your version control setup (M18)
 - [ ] Add a continues workflow that triggers when data changes (M19)
-- [ ] Add a continues workflow that triggers when changes to the model registry is made (M19)
-- [ ] Create a data storage in GCP Bucket for your data and link this with your data version control setup (M21)
-- [ ] Create a trigger workflow for automatically building your docker images (M21)
+- [x] Add a continues workflow that triggers when changes to the model registry is made (M19)
+- [x] Create a data storage in GCP Bucket for your data and link this with your data version control setup (M21)
+- [x] Create a trigger workflow for automatically building your docker images (M21)
 - [x] Get your model training in GCP using either the Engine or Vertex AI (M21)
 - [x] Create a FastAPI application that can do inference using your model (M22)
-- [ ] Deploy your model in GCP using either Functions or Run as the backend (M23)
+- [x] Deploy your model in GCP using either Functions or Run as the backend (M23)
 - [ ] Write API tests for your application and setup continues integration for these (M24)
 - [ ] Load test your application (M24)
 - [ ] Create a more specialized ML-deployment API using either ONNX or BentoML, or both (M25)
-- [ ] Create a frontend for your API (M26)
+- [x] Create a frontend for your API (M26)
 
 ### Week 3
 
@@ -245,7 +245,6 @@ No, we did not use any rules or alike actively.
 >
 > Answer:
 
---- question 7 fill here ---
 In total, we have implemented 19 tests organized into 7 functional test suites. Primarily, we are testing our training pipeline (86% coverage) and model architecture (75%) to ensure training stability and correct tensor flow. We also test our data loading logic (70%) to verify deterministic splitting and our visualization suite (100%) to ensure accurate performance logging. Furthermore, we verify our evaluation logic (74%), FastAPI backend (49%), and Gradio frontend (56%), ensuring a robust end-to-end system from data to the user interface.
 ****
 ### Question 8
@@ -541,7 +540,7 @@ We wrapped our API into a containerized application using a Dockerfile. We first
 
 To invoke the deployed service, a user would call the endpoint using a curl command like this:
 
-> _`curl -X POST "https://your-service-url.a.run.app/train" \ -H "Content-Type: application/json" \ -d '{"project_id": "your-project-id", "region": "us-central1"}'`_
+> _`curl -X POST " https://rice-api-681024937248.europe-west1.run.app/train"`_
 > This triggers the internal logic to resolve settings, fetch secrets, and launch a custom training job on Vertex AI.
 
 ### Question 25
@@ -572,7 +571,7 @@ To invoke the deployed service, a user would call the endpoint using a curl comm
 >
 > Answer:
 
---- question 26 fill here ---
+We did not manage to implement monitoring of our deployed model. If it were in place, we would use it to track both system health (latency, error rates, resource usage) and model quality signals over time. For example, we would log prediction distributions and input feature statistics to detect data drift, and compare evaluation metrics on a held‑out or periodically labeled sample to detect performance degradation. Monitoring would also help catch issues such as failed training jobs, missing artifacts, or degraded availability before they impact users. Over time, these signals would inform when retraining is necessary, whether the data pipeline is stable, and if changes to the model or infrastructure are causing regressions. This would improve the longevity of the application by enabling proactive maintenance instead of reactive fixes.
 
 ## Overall discussion of project
 
@@ -591,7 +590,10 @@ To invoke the deployed service, a user would call the endpoint using a curl comm
 >
 > Answer:
 
---- question 27 fill here ---
+We ended up using all the available credits. In hindsight, we should have set up guardrails (budgets and alerts) early, but we forgot until it was too late. It is also hard to separate usage per person because everyone triggered model training and we shared the same storage bucket for data and artifacts. The most expensive services were storage (persistent data, models, and logs) and Vertex AI (training jobs and GPU usage). Storage costs add up over time even when nothing is running, and Vertex AI jobs are expensive when multiple runs are triggered without strong limits. Overall, working in the cloud was convenient for scaling and access, but it makes costs easy to underestimate. It required more discipline than local development: careful cleanup, tracking resource usage, and setting budgets/alerts. We learned that cost management needs to be part of the project setup, not an afterthought.
+
+![budget](figures/budget.png)
+
 
 ### Question 28
 
@@ -607,7 +609,7 @@ To invoke the deployed service, a user would call the endpoint using a curl comm
 >
 > Answer:
 
---- question 28 fill here ---
+ADAM DU MÅ LIGE SVARE PÅ DEN HER FOR FRONTEDN TIL API
 
 ### Question 29
 
@@ -624,7 +626,8 @@ To invoke the deployed service, a user would call the endpoint using a curl comm
 >
 > Answer:
 
---- question 29 fill here ---
+![arc](figures/architecture.png)
+
 
 ### Question 30
 
