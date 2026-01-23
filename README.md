@@ -90,6 +90,7 @@ Upload a rice grain image and get classification predictions with confidence sco
    ```
 
 3. Run the Gradio frontend:
+
    ```bash
    uv run python -m rice_cnn_classifier.frontend
    ```
